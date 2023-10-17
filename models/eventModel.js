@@ -12,12 +12,6 @@ const eventSchema = new mongoose.Schema(
             required: true,
         },
 
-        hostAgency: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Agency",
-            required: true,
-        },
-
         location: {
             latitude: {
                 type: String,
@@ -34,10 +28,17 @@ const eventSchema = new mongoose.Schema(
             required: true,
         },
 
-        eventType: {
-            type: String,
+        agencyId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Agency",
             required: true,
         },
+
+        //registrations done for this event
+        registrations: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: "EventRegistration"
+        }
     },
     {
         timestamps: true,

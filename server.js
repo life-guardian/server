@@ -14,8 +14,10 @@ connectDB();
 
 //routes
 const userRoutes = require("./routes/userRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 
 app.use("/api/user", userRoutes);
+app.use("/api/event", eventRoutes);
 
 app.get("/", (req, res) => {
   res.send("<h2>Welcome to LifeGuardian</h2>");

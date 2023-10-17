@@ -63,7 +63,7 @@ const userLogin = async (req, res) => {
 
     if (match) {
       const token = jwt.sign(
-        { email: user.email, shopName: user.shopName, id: user._id },
+        { email: user.email, id: user._id },
         process.env.JWT_SECRET_KEY,
         {
           expiresIn: process.env.JWT_TOKEN_EXPIRATION,
