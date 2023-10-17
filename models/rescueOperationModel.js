@@ -29,7 +29,7 @@ const rescueOperationSchema = new mongoose.Schema(
             },
         },
 
-        rescueTeamSize : {
+        rescueTeamSize: {
             type: Number,
             required: true
         }

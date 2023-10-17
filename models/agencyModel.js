@@ -54,6 +54,6 @@ const agencySchema = new mongoose.Schema(
     }
 );
 
-const User = new mongoose.model("User", agencySchema);
+const Agency = new mongoose.model("Agency", agencySchema);
 
-module.exports = User;
+module.exports = Agency;
