@@ -12,10 +12,10 @@ const {
 router.post(
   "/register",
   [
-    check("firstname", "Name length should be 10 to 20 characters")
+    check("firstname", "First Name length should be 1 to 20 characters")
       .trim()
       .isLength({ min: 1, max: 20 }),
-    check("lastname", "Password length should be 3 to 20 characters")
+    check("lastname", "Last Name length should be 3 to 20 characters")
       .trim()
       .isLength({ min: 1, max: 20 }),
     check("phoneNumber", "Mobile number should contains 10 digits")

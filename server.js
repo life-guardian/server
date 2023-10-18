@@ -14,9 +14,11 @@ connectDB();
 
 //routes
 const userRoutes = require("./routes/userRoutes");
+const agencyRoutes = require("./routes/agencyRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 
 app.use("/api/user", userRoutes);
+app.use("/api/agency", agencyRoutes);
 app.use("/api/event", eventRoutes);
 
 app.get("/", (req, res) => {
