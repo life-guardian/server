@@ -41,7 +41,7 @@ const agencyRegister = async (req, res) => {
       password: hashedPassword,
       phone: mobNum,
       representativeName,
-      address,
+      address
     });
 
     const token = jwt.sign(

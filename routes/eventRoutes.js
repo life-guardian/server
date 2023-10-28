@@ -8,6 +8,7 @@ const {
   cancelEvent,
   showRegisteredEvents,
   upcomingNearbyEvents,
+  eventDetails
 } = require("../controllers/event.controller");
 
 //Agency specific
@@ -21,5 +22,6 @@ router.delete("/agency/cancel", auth, cancelEvent);
 router.post("/register", auth, registerForEvent);
 router.get("/registeredevents", auth, showRegisteredEvents);
 router.get("/nearbyevents", auth, upcomingNearbyEvents);
+router.get("/eventdetails", auth, eventDetails);
 
 module.exports = router;

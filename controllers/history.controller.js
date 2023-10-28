@@ -26,8 +26,8 @@ const eventsHistory = async (req, res) => {
 };
 
 // Agency
-const operationsHistory = async (req, res) => {
+const rescueOperationsHistory = async (req, res) => {
   await fetchHistory(ROperation, req, res, "operations");
 };
 
-module.exports = { alertsHistory, eventsHistory, operationsHistory };
+module.exports = { alertsHistory, eventsHistory, rescueOperationsHistory };
