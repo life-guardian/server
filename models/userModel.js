@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema(
     receivedAlerts: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "Alert",
+    },
+
+    registeredEvents: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Event",
     }
 
   },

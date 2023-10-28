@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Event = require("../models/eventModel");
 const Agency = require("../models/agencyModel");
+const User = require("../models/userModel");
 
 const handleServerError = (res, error, message) => {
   console.error(`${message} : ${error}`);
@@ -87,7 +88,7 @@ const showRegistrations = async (req, res) => {
       phoneNumber: user.phoneNumber,
     }));
 
-    res.status(200).json({ registrations });
+    res.status(200).json(registrations);
   } catch (error) {
     handleServerError(res, error, "Error in showing registrations");
   }
@@ -104,12 +105,23 @@ const cancelEvent = async (req, res) => {
     if (!deletedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
+    
+
+    //clear all registrations for that event
+
+    // Update the User documents using the registrations array of the deleted event
+    await User.updateMany(
+      { _id: { $in: deletedEvent.registrations } }, // Find the users in the registrations array of the deleted event
+      { $pull: { registeredEvents: eventId } } // Pull the eventId from the registeredEvents array of each user
+    );
 
     res.status(200).json({ message: "Event deleted successfully" });
   } catch (error) {
     handleServerError(res, error, "Error in deleting event");
   }
 };
+
+
 
 //user
 const registerForEvent = async (req, res) => {
@@ -136,10 +148,22 @@ const registerForEvent = async (req, res) => {
     foundEvent.registrations.push(req.user.id);
     await foundEvent.save();
 
+    await User.findOneAndUpdate(
+      { _id: req.user.id },
+      { $push: { registeredEvents: foundEvent._id } }
+    );
+
     res.status(200).json({ message: "Successfully registered for the event!" });
   } catch (error) {
     handleServerError(res, error, "Error in registering for event");
   }
+};
+
+//user
+const showRegisteredEvents = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("registeredEvents");
+  } catch (error) {}
 };
 
 module.exports = {
