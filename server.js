@@ -17,11 +17,13 @@ const userRoutes = require("./routes/userRoutes");
 const agencyRoutes = require("./routes/agencyRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const userLocationRoutes = require("./routes/userLocationRoutes");
+const historyRoutes = require("./routes/historyRoutes");
 
 app.use("/api/user", userRoutes); //register, login routes for user
 app.use("/api/agency", agencyRoutes); //register , login routes for agency
 app.use("/api/event", eventRoutes); //all event routes
 app.use("/api/userlocation", userLocationRoutes); //routes related to users location
+app.use("/api/history", historyRoutes); //all history page routes
 
 
 app.get("/", (req, res) => {
