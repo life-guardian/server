@@ -12,7 +12,7 @@ const rescueOperationSchema = new mongoose.Schema(
       required: true,
     },
 
-    hostAgency: {
+    agencyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Agency",
       required: true,
