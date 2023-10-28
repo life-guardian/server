@@ -163,8 +163,50 @@ const registerForEvent = async (req, res) => {
 const showRegisteredEvents = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("registeredEvents");
-  } catch (error) {}
+    const response = user.registeredEvents.map((event)=>({
+      eventId: event._id,
+      eventName: event.eventName,
+      agencyName: event.agencyId.name,
+      eventDate: event.eventDate
+    }))
+
+    res.status(200).json(response);
+  } catch (error) {
+    handleServerError(res, error, "Error in fetching registered events");
+  }
 };
+
+
+//user
+const upcomingNearbyEvents = async (req, res) => {
+  const {locationCoordinates} = req.body;
+  try {
+    // Convert kilometers to miles as the query accepts distance in miles
+    const radiusInMiles = 20 / 1.60934;
+    
+    const options = {
+      location: {
+        $geoWithin: {
+          $centerSphere: [[parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])], radiusInMiles / 3963.2]
+        }
+      }
+    };
+
+    const events = await Event.find(options).populate("agencyId");
+
+    const response = events.map((event)=>({
+      eventId: event._id,
+      eventName: event.eventName,
+      agencyName: event.agencyId.name,
+      eventDate: event.eventDate
+    }))
+
+    res.status(200).json(response);
+  } catch (error) {
+    handleServerError(res, error, "Error in finding upcoming Nearby Events");
+  }
+
+}
 
 module.exports = {
   agencyAddEvent,
@@ -172,4 +214,6 @@ module.exports = {
   showRegistrations,
   showEventsList,
   cancelEvent,
+  showRegisteredEvents,
+  upcomingNearbyEvents
 };
