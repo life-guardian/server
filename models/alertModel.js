@@ -12,7 +12,7 @@ const alertSchema = new mongoose.Schema(
       enum: ["high", "medium", "low"],
       required: true,
     },
-
+  
     alertLocation: {
       type: {
         type: String,
@@ -24,18 +24,18 @@ const alertSchema = new mongoose.Schema(
         required: true,
       },
     },
-
+  
     alertForDate: {
       type: Date,
       required: true,
     },
-
+  
     agencyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Agency",
       required: true,
     },
-
+  
   },
   {
     timestamps: true,

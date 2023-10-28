@@ -43,7 +43,12 @@ const userSchema = new mongoose.Schema(
 
     lastLocationUpdatedAt: {
       type: Date,
-      default: NULL
+      default: null
+    },
+
+    receivedAlerts: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Alert",
     }
 
   },
@@ -53,7 +58,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Index for geospatial queries
-User.index({ lastLocation: "2dsphere" });
+userSchema.index({ lastLocation: "2dsphere" });
 
 const User = new mongoose.model("User", userSchema);
 

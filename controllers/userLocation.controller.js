@@ -11,7 +11,7 @@ const uodateLastLocationUser = async (req, res) => {
     if(!result.success){
         return res.status(400).json({message: result.message});
     }
-
+    
     return res.status(200).json({message: result.message});
   } catch (error) {
     console.error(`Error in updating users last location`);
