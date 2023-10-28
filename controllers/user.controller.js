@@ -13,8 +13,7 @@ const userRegister = async (req, res) => {
   }
 
   try {
-    let { firstName, lastName, password, phoneNumber, email, address } =
-      req.body;
+    let { name, password, phoneNumber, email, address } = req.body;
 
     const mobNum = Number(phoneNumber);
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,12 +29,27 @@ const userRegister = async (req, res) => {
     }
 
     const user = await User.create({
-      firstName: firstName.toLowerCase(),
-      lastName: lastName.toLowerCase(),
+      name,
       password: hashedPassword,
       phoneNumber: mobNum,
       email: email.toLowerCase(),
       address: address,
+    });
+
+    const token = jwt.sign(
+      { email: user.email, id: user._id, isAgency: false },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: process.env.JWT_TOKEN_EXPIRATION,
+      }
+    );
+
+    const cookieExpiration = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days in milliseconds
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: cookieExpiration,
+      secure: process.env.NODE_ENV === "development" ? false : true,
     });
 
     res.status(200).json({ message: "Account created" });
@@ -99,18 +113,8 @@ const userLogout = async (req, res) => {
   }
 };
 
-const checkIfLoggedIn = async (req, res) => {
-  try {
-    return res.status(200).json({ message: "User is logged in" });
-  } catch (error) {
-    console.error(`Error in checkIfLoggedIn : ${error}`);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
 module.exports = {
   userRegister,
   userLogin,
   userLogout,
-  checkIfLoggedIn,
 };
