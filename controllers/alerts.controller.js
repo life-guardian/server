@@ -1,8 +1,7 @@
-const User = require("../models/userModel.js");
 const mongoose = require("mongoose");
-const { updateUsersLastLocation } = require("../utils/usersLastLocation.js");
 const Alert = require("../models/alertModel.js");
-const { usersInRangeOfLocation } = require("../utils/usersInRangeOfLocation.js"); // assuming you have this utility function
+const User = require("../models/userModel.js");
+const { updateUsersLastLocation, usersInRangeOfLocation } = require("../utils/userLocation.js");
 
 // agency
 const sendAlert = async (req, res) => {

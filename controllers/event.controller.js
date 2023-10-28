@@ -205,7 +205,29 @@ const upcomingNearbyEvents = async (req, res) => {
   } catch (error) {
     handleServerError(res, error, "Error in finding upcoming Nearby Events");
   }
+}
 
+
+//user
+const eventDetails = async (req, res) => {
+  const {eventId} = req.body;
+  try {
+ 
+    const event = await Event.findById(eventId).populate("agencyId");
+
+    const response = {
+      eventId: event._id,
+      eventName: event.eventName,
+      eventDescription: event.description,
+      eventDate: event.eventDate,
+      agencyName: event.agencyId.name,
+      eventLocation: event.location.coordinates
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    handleServerError(res, error, "Error in fetching event details");
+  }
 }
 
 module.exports = {
@@ -215,5 +237,6 @@ module.exports = {
   showEventsList,
   cancelEvent,
   showRegisteredEvents,
-  upcomingNearbyEvents
+  upcomingNearbyEvents,
+  eventDetails
 };

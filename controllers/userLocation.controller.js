@@ -1,8 +1,8 @@
-const User = require("../models/userModel.js");
 const mongoose = require("mongoose");
-const { updateUsersLastLocation } = require("../utils/usersLastLocation.js");
+const User = require("../models/userModel.js");
+const { updateUsersLastLocation } = require("../utils/userLocation.js");
 
-const uodateLastLocationUser = async (req, res) => {
+const updateLastLocationUser = async (req, res) => {
   try {
     //location coordinates is array field with Longitude and lattitude
     const { locationCoordinates } = req.body;
@@ -20,5 +20,5 @@ const uodateLastLocationUser = async (req, res) => {
 };
 
 module.exports = {
-    uodateLastLocationUser
+    updateLastLocationUser
 };

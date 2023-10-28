@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const {
-    uodateLastLocationUser,
+    updateLastLocationUser,
 } = require("../controllers/userLocation.controller");
 
 
-router.put("/updatelastlocation", auth, uodateLastLocationUser);
+router.put("/updatelastlocation", auth, updateLastLocationUser);
 
 
 module.exports = router;
