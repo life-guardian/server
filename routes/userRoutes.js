@@ -6,16 +6,12 @@ const {
   userRegister,
   userLogin,
   userLogout,
-  checkIfLoggedIn,
 } = require("../controllers/user.controller");
 
-router.post(
+router.put(
   "/register",
   [
-    check("firstname", "First Name length should be 1 to 20 characters")
-      .trim()
-      .isLength({ min: 1, max: 20 }),
-    check("lastname", "Last Name length should be 3 to 20 characters")
+    check("name", "Name length should be 1 to 20 characters")
       .trim()
       .isLength({ min: 1, max: 20 }),
     check("phoneNumber", "Mobile number should contains 10 digits")
@@ -50,6 +46,5 @@ router.post(
   userLogin
 );
 router.delete("/logout", auth, userLogout);
-router.get("/loginstatus", auth, checkIfLoggedIn);
 
 module.exports = router;
