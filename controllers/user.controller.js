@@ -13,7 +13,8 @@ const userRegister = async (req, res) => {
   }
 
   try {
-    let { name, password, phoneNumber, email, address } = req.body;
+    let { name, password, phoneNumber, email, address, locationCoordinates } =
+      req.body;
 
     const mobNum = Number(phoneNumber);
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,12 +29,18 @@ const userRegister = async (req, res) => {
       });
     }
 
+    lastLocation = {
+      type: "Point",
+      coordinates: [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
+    };
+
     const user = await User.create({
       name,
       password: hashedPassword,
       phoneNumber: mobNum,
       email: email.toLowerCase(),
       address: address,
+      lastLocation,
     });
 
     const token = jwt.sign(
@@ -66,7 +73,7 @@ const userLogin = async (req, res) => {
     res.status(403).json({ message: validationErrors.errors[0].msg });
     return;
   }
-  const { email, password } = req.body;
+  const { email, password, locationCoordinates } = req.body;
 
   try {
     const user = await User.findOne({ email: email });
@@ -83,6 +90,15 @@ const userLogin = async (req, res) => {
           expiresIn: process.env.JWT_TOKEN_EXPIRATION,
         }
       );
+
+      //updating lastLocation of user
+      const result = await updateUsersLastLocation(
+        user._id,
+        locationCoordinates
+      );
+      if (!result.success) {
+        return res.status(400).json({ message: result.message });
+      }
 
       const cookieExpiration = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days in milliseconds
 

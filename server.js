@@ -16,10 +16,13 @@ connectDB();
 const userRoutes = require("./routes/userRoutes");
 const agencyRoutes = require("./routes/agencyRoutes");
 const eventRoutes = require("./routes/eventRoutes");
+const userLocationRoutes = require("./routes/userLocationRoutes");
 
-app.use("/api/user", userRoutes);
-app.use("/api/agency", agencyRoutes);
-app.use("/api/event", eventRoutes);
+app.use("/api/user", userRoutes); //register, login routes for user
+app.use("/api/agency", agencyRoutes); //register , login routes for agency
+app.use("/api/event", eventRoutes); //all event routes
+app.use("/api/userlocation", userLocationRoutes); //routes related to users location
+
 
 app.get("/", (req, res) => {
   res.send("<h2>Welcome to LifeGuardian</h2>");

@@ -28,11 +28,32 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    lastLocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+
+    lastLocationUpdatedAt: {
+      type: Date,
+      default: NULL
+    }
+
   },
   {
     timestamps: true,
   }
 );
+
+// Index for geospatial queries
+User.index({ lastLocation: "2dsphere" });
 
 const User = new mongoose.model("User", userSchema);
 
