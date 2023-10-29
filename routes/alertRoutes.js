@@ -8,6 +8,6 @@ router.post("/agency/sendalert", auth, isAgency, sendAlert);
 
 
 //public
-router.post("/showreceived", auth, showReceivedAlerts);
+router.get("/showreceived", auth, showReceivedAlerts);
 
 module.exports = router;

@@ -15,6 +15,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const agencyRoutes = require("./routes/agencyRoutes");
 const eventRoutes = require("./routes/eventRoutes");
+const alertRoutes = require("./routes/alertRoutes");
 const userLocationRoutes = require("./routes/userLocationRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const findAgencyRoutes = require("./routes/findAgencyRoutes");
@@ -22,6 +23,7 @@ const findAgencyRoutes = require("./routes/findAgencyRoutes");
 app.use("/api/user", userRoutes); //register, login routes for user
 app.use("/api/agency", agencyRoutes); //register , login routes for agency
 app.use("/api/event", eventRoutes); //all event routes
+app.use("/api/alert", alertRoutes); //send alert, show received alerts
 app.use("/api/userlocation", userLocationRoutes); //routes related to users location
 app.use("/api/history", historyRoutes); //all history page routes
 app.use("/api/search", findAgencyRoutes); //search agencies by agency name or representative name & view details
