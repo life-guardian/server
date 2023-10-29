@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const isAgency = require("../middlewares/isAgency");
+const notAgency = require("../middlewares/notAgency");
 const { check, validationResult } = require("express-validator");
 
 const {

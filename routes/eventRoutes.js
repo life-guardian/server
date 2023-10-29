@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const isAgency = require("../middlewares/isAgency");
+const notAgency = require("../middlewares/notAgency");
 const {
   agencyAddEvent,
   registerForEvent,
@@ -15,14 +16,14 @@ const {
 //Agency specific
 router.post("/agency/add", auth, isAgency, agencyAddEvent);
 router.get("/agency/list", auth, isAgency, showEventsList);
-router.get("/agency/registrations", auth, isAgency, showRegistrations);
+router.get("/agency/registrations/:eventId", auth, isAgency, showRegistrations);
 
-router.delete("/agency/cancel", auth, isAgency, cancelEvent);
+router.delete("/agency/cancel/:eventId", auth, isAgency, cancelEvent);
 
 //public
-router.post("/register", auth, registerForEvent);
-router.get("/registeredevents", auth, showRegisteredEvents);
-router.get("/nearbyevents", auth, upcomingNearbyEvents);
-router.get("/eventdetails", auth, eventDetails);
+router.put("/register", auth, notAgency, registerForEvent);
+router.get("/registeredevents", auth, notAgency, showRegisteredEvents);
+router.get("/nearbyevents/:longitude/:latitude", auth, notAgency, upcomingNearbyEvents);
+router.get("/eventdetails/:eventId", auth, notAgency, eventDetails);
 
 module.exports = router;
