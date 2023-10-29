@@ -74,13 +74,13 @@ const showRegistrations = async (req, res) => {
   const { eventId } = req.body;
 
   try {
-    const event = await Event.findById(eventId).populate(
-      "registrations",
-      "name phoneNumber"
-    );
+    const event = await Event.findOne({ _id: eventId, agencyId: req.user.id}).populate({
+      path: "registrations",
+      select: "name phoneNumber",
+    });
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      return res.status(404).json({ message: "You have not added this event" });
     }
 
     const registrations = event.registrations.map((user) => ({
@@ -99,29 +99,33 @@ const cancelEvent = async (req, res) => {
   const { eventId } = req.body;
 
   try {
-    // Find the event by its ID and remove it
-    const deletedEvent = await Event.findByIdAndRemove(eventId);
+    const event = await Event.findOne({ _id: eventId, agencyId: req.user.id });
+
+    if (!event) {
+      return res.status(403).json({ message: "You have not added this event" });
+    }
+
+    const deletedEvent = await Event.findOneAndDelete({ _id: eventId });
 
     if (!deletedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
-    
 
-    //clear all registrations for that event
+    const registrations = deletedEvent.registrations;
 
-    // Update the User documents using the registrations array of the deleted event
-    await User.updateMany(
-      { _id: { $in: deletedEvent.registrations } }, // Find the users in the registrations array of the deleted event
-      { $pull: { registeredEvents: eventId } } // Pull the eventId from the registeredEvents array of each user
-    );
+    // Using Promise.all to handle promises in parallel
+    await Promise.all([
+      User.updateMany(
+        { _id: { $in: registrations } }, // Find the users in the registrations array of the deleted event
+        { $pull: { registeredEvents: eventId } } // Pull the eventId from the registeredEvents array of each user
+      ),
+    ]);
 
     res.status(200).json({ message: "Event deleted successfully" });
   } catch (error) {
     handleServerError(res, error, "Error in deleting event");
   }
 };
-
-
 
 //user
 const registerForEvent = async (req, res) => {
@@ -163,12 +167,12 @@ const registerForEvent = async (req, res) => {
 const showRegisteredEvents = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("registeredEvents");
-    const response = user.registeredEvents.map((event)=>({
+    const response = user.registeredEvents.map((event) => ({
       eventId: event._id,
       eventName: event.eventName,
       agencyName: event.agencyId.name,
-      eventDate: event.eventDate
-    }))
+      eventDate: event.eventDate,
+    }));
 
     res.status(200).json(response);
   } catch (error) {
@@ -176,43 +180,46 @@ const showRegisteredEvents = async (req, res) => {
   }
 };
 
-
 //user
 const upcomingNearbyEvents = async (req, res) => {
-  const {locationCoordinates} = req.body;
+  const { locationCoordinates } = req.body;
   try {
     // Convert kilometers to miles as the query accepts distance in miles
     const radiusInMiles = 20 / 1.60934;
-    
+
     const options = {
       location: {
         $geoWithin: {
-          $centerSphere: [[parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])], radiusInMiles / 3963.2]
-        }
-      }
+          $centerSphere: [
+            [
+              parseFloat(locationCoordinates[0]),
+              parseFloat(locationCoordinates[1]),
+            ],
+            radiusInMiles / 3963.2,
+          ],
+        },
+      },
     };
 
     const events = await Event.find(options).populate("agencyId");
 
-    const response = events.map((event)=>({
+    const response = events.map((event) => ({
       eventId: event._id,
       eventName: event.eventName,
       agencyName: event.agencyId.name,
-      eventDate: event.eventDate
-    }))
+      eventDate: event.eventDate,
+    }));
 
     res.status(200).json(response);
   } catch (error) {
     handleServerError(res, error, "Error in finding upcoming Nearby Events");
   }
-}
-
+};
 
 //user
 const eventDetails = async (req, res) => {
-  const {eventId} = req.body;
+  const { eventId } = req.body;
   try {
- 
     const event = await Event.findById(eventId).populate("agencyId");
 
     const response = {
@@ -221,14 +228,14 @@ const eventDetails = async (req, res) => {
       eventDescription: event.description,
       eventDate: event.eventDate,
       agencyName: event.agencyId.name,
-      eventLocation: event.location.coordinates
+      eventLocation: event.location.coordinates,
     };
 
     res.status(200).json(response);
   } catch (error) {
     handleServerError(res, error, "Error in fetching event details");
   }
-}
+};
 
 module.exports = {
   agencyAddEvent,
@@ -238,5 +245,5 @@ module.exports = {
   cancelEvent,
   showRegisteredEvents,
   upcomingNearbyEvents,
-  eventDetails
+  eventDetails,
 };
