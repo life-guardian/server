@@ -2,6 +2,7 @@ const User = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const { updateUsersLastLocation } = require("../utils/userLocation.js");
 const { validationResult } = require("express-validator");
 
 const userRegister = async (req, res) => {
@@ -25,10 +26,11 @@ const userRegister = async (req, res) => {
 
     if (alreadyPresent) {
       return res.status(400).json({
-        message: "User already present with the mobile number or email",
+        message: "User already present with the email or phone number",
       });
     }
 
+    //longitude first and lattitude second
     lastLocation = {
       type: "Point",
       coordinates: [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
@@ -41,6 +43,7 @@ const userRegister = async (req, res) => {
       email: email.toLowerCase(),
       address: address,
       lastLocation,
+      lastLocationUpdatedAt: Date.now()
     });
 
     const token = jwt.sign(
@@ -73,10 +76,19 @@ const userLogin = async (req, res) => {
     res.status(403).json({ message: validationErrors.errors[0].msg });
     return;
   }
-  const { email, password, locationCoordinates } = req.body;
+  const { username, password, locationCoordinates } = req.body;
 
   try {
-    const user = await User.findOne({ email: email });
+
+    let user;
+
+    if (isNaN(username)) {
+      // If username is not a number, find by email
+      user = await User.findOne({ email: username });
+    } else {
+      // If username is a number, find by phone
+      user = await User.findOne({ phoneNumber: Number(username) });
+    }
     if (!user)
       return res.status(404).json({ message: "Account not registered" });
 
@@ -92,6 +104,7 @@ const userLogin = async (req, res) => {
       );
 
       //updating lastLocation of user
+      //longitude first and lattitude second
       const result = await updateUsersLastLocation(
         user._id,
         locationCoordinates
@@ -108,7 +121,7 @@ const userLogin = async (req, res) => {
         secure: process.env.NODE_ENV === "development" ? false : true,
       });
 
-      return res.status(200).json({ message: "Login successful!" });
+      return res.status(200).json({ message: "Login successfull" });
     } else {
       return res.status(400).json({ message: "Incorrect password" });
     }
@@ -122,7 +135,7 @@ const userLogout = async (req, res) => {
   try {
     res.clearCookie("token", { httpOnly: true });
 
-    return res.status(200).json({ message: "Logged out successfully" });
+    return res.status(200).json({ message: "Logged out" });
   } catch (error) {
     console.error(`Error in Logout : ${error}`);
     return res.status(500).json({ message: "Logout failed" });

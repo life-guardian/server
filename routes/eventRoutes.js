@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
+const isAgency = require("../middlewares/isAgency");
 const {
   agencyAddEvent,
   registerForEvent,
@@ -12,11 +13,11 @@ const {
 } = require("../controllers/event.controller");
 
 //Agency specific
-router.post("/agency/add", auth, agencyAddEvent);
-router.get("/agency/list", auth, showEventsList);
-router.get("/agency/registrations", auth, showRegistrations);
+router.post("/agency/add", auth, isAgency, agencyAddEvent);
+router.get("/agency/list", auth, isAgency, showEventsList);
+router.get("/agency/registrations", auth, isAgency, showRegistrations);
 
-router.delete("/agency/cancel", auth, cancelEvent);
+router.delete("/agency/cancel", auth, isAgency, cancelEvent);
 
 //public
 router.post("/register", auth, registerForEvent);

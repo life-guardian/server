@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middlewares/auth");
+const isAgency = require("../middlewares/isAgency");
 const {findAgency, agencyDetails} = require("../controllers/findAgency.controller");
 
 //public
