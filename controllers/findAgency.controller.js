@@ -1,21 +1,35 @@
 const mongoose = require("mongoose");
-const Agency = require("../models/alertModel.js");
+const Agency = require("../models/agencyModel.js");
 const Event = require("../models/eventModel.js");
 const ROperation = require("../models/rescueOperationModel.js");
 
 const findAgency = async (req, res) => {
-  const searchText = req.body.searchText;
-
-  try {
-    const agencies = await Agency.find({
+  let query = {};
+  const searchText = req.query.searchText.trim() || "";
+  if (searchText) {
+    query = {
       $or: [
-        { name: { $regex: searchText, $options: "i" } }, // using $options: "i" for Case-insensitive search
+        { name: { $regex: searchText, $options: "i" } },
         { representativeName: { $regex: searchText, $options: "i" } },
         { email: { $regex: searchText, $options: "i" } },
       ],
-    }).select("_id name representativeName");
+    };
+  }
 
-    res.status(200).json(agencies);
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 30;
+  const skip = (page - 1) * limit;
+
+  try {
+    const count = await Agency.countDocuments(query);
+    const totalPages = Math.ceil(count / limit);
+
+    const agencies = await Agency.find(query)
+      .select("_id name representativeName")
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({ totalPages, currentPage: page, agencies });
   } catch (error) {
     console.error(`Error finding agency: ${error}`);
     return res.status(500).json({ message: "Error finding agency" });
@@ -23,7 +37,7 @@ const findAgency = async (req, res) => {
 };
 
 const agencyDetails = async (req, res) => {
-  const { agencyId } = req.body;
+  const { agencyId } = req.params;
 
   try {
     const agency = await Agency.findById(agencyId);
