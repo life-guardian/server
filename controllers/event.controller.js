@@ -71,10 +71,13 @@ const showEventsList = async (req, res) => {
 
 //agency
 const showRegistrations = async (req, res) => {
-  const { eventId } = req.body;
+  const eventId = req.params.eventId;
 
   try {
-    const event = await Event.findOne({ _id: eventId, agencyId: req.user.id}).populate({
+    const event = await Event.findOne({
+      _id: eventId,
+      agencyId: req.user.id,
+    }).populate({
       path: "registrations",
       select: "name phoneNumber",
     });
@@ -96,7 +99,7 @@ const showRegistrations = async (req, res) => {
 
 //agency
 const cancelEvent = async (req, res) => {
-  const { eventId } = req.body;
+  const eventId = req.params.eventId;
 
   try {
     const event = await Event.findOne({ _id: eventId, agencyId: req.user.id });
@@ -182,7 +185,7 @@ const showRegisteredEvents = async (req, res) => {
 
 //user
 const upcomingNearbyEvents = async (req, res) => {
-  const { locationCoordinates } = req.body;
+  const { longitude, latitude } = req.params;
   try {
     // Convert kilometers to miles as the query accepts distance in miles
     const radiusInMiles = 20 / 1.60934;
@@ -191,10 +194,7 @@ const upcomingNearbyEvents = async (req, res) => {
       location: {
         $geoWithin: {
           $centerSphere: [
-            [
-              parseFloat(locationCoordinates[0]),
-              parseFloat(locationCoordinates[1]),
-            ],
+            [parseFloat(longitude), parseFloat(latitude)],
             radiusInMiles / 3963.2,
           ],
         },
@@ -218,9 +218,9 @@ const upcomingNearbyEvents = async (req, res) => {
 
 //user
 const eventDetails = async (req, res) => {
-  const { eventId } = req.body;
+  const eventId = req.params.eventId;
   try {
-    const event = await Event.findById(eventId).populate("agencyId");
+    const event = await Event.findOne({ _id: eventId }).populate("agencyId");
 
     const response = {
       eventId: event._id,
