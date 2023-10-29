@@ -10,7 +10,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 const connectDB = require("./config/db");
-connectDB();
 
 //routes
 const userRoutes = require("./routes/userRoutes");
@@ -32,8 +31,11 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(
-    `Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode`
-  );
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(
+      `Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode`
+    );
+  });
 });
