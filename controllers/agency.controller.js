@@ -1,15 +1,14 @@
-const Agency = require("../models/agencyModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const Agency = require("../models/agencyModel.js");
 const { validationResult } = require("express-validator");
 
 const agencyRegister = async (req, res) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
     console.log(validationErrors);
-    res.status(403).json({ message: validationErrors.errors[0].msg });
-    return;
+    return res.status(403).json({ message: validationErrors.errors[0].msg });
   }
 
   try {
@@ -25,13 +24,13 @@ const agencyRegister = async (req, res) => {
     const mobNum = Number(agencyPhNo);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const alreadyPresent = await User.findOne({
-      $or: [{ agencyEmail }, { agencyPhNo: mobNum }],
+    const alreadyPresent = await Agency.findOne({
+      $or: [{ email: agencyEmail }, { phone: mobNum }],
     });
 
     if (alreadyPresent) {
       return res.status(400).json({
-        message: "Agency already present with the mobile number or email",
+        message: "Agency already present with the email or phone number",
       });
     }
 
@@ -41,7 +40,7 @@ const agencyRegister = async (req, res) => {
       password: hashedPassword,
       phone: mobNum,
       representativeName,
-      address
+      address,
     });
 
     const token = jwt.sign(
@@ -60,12 +59,13 @@ const agencyRegister = async (req, res) => {
       secure: process.env.NODE_ENV === "development" ? false : true,
     });
 
-    res.status(200).json({ message: "Agency created" });
+    return res.status(200).json({ message: "Agency registered" });
   } catch (error) {
-    console.error(`Error in registering agency : ${error}`);
-    res.status(500).json({ message: "Internal server error" });
+    console.error(`Error in registering agency: ${error}`);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const agencyLogin = async (req, res) => {
   const validationErrors = validationResult(req);
@@ -74,10 +74,20 @@ const agencyLogin = async (req, res) => {
     res.status(403).json({ message: validationErrors.errors[0].msg });
     return;
   }
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   try {
-    const agency = await Agency.findOne({ email: email });
+    
+    let agency;
+
+    if (isNaN(username)) {
+      // If username is not a number, find by email
+      agency = await Agency.findOne({ email: username });
+    } else {
+      // If username is a number, find by phone
+      agency = await Agency.findOne({ phone: Number(username) });
+    }
+
     if (!agency)
       return res.status(404).json({ message: "Agency not registered" });
 
@@ -100,7 +110,7 @@ const agencyLogin = async (req, res) => {
         secure: process.env.NODE_ENV === "development" ? false : true,
       });
 
-      return res.status(200).json({ message: "Login successful!" });
+      return res.status(200).json({ message: "Login successfull" });
     } else {
       return res.status(400).json({ message: "Incorrect password" });
     }
@@ -114,7 +124,7 @@ const agencyLogout = async (req, res) => {
   try {
     res.clearCookie("token", { httpOnly: true });
 
-    return res.status(200).json({ message: "Logged out successfully" });
+    return res.status(200).json({ message: "Logged out" });
   } catch (error) {
     console.error(`Error in Logout : ${error}`);
     return res.status(500).json({ message: "Logout failed" });

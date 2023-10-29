@@ -6,6 +6,7 @@ const usersInRangeOfLocation = async (locationCoordinates) => {
     // Convert 10 kilometers to miles as the query accepts distance in miles
     const radiusInMiles = 10 / 1.60934;
     
+    //longitude first and lattitude second
     const options = {
       lastLocation: {
         $geoWithin: {
@@ -32,7 +33,8 @@ const updateUsersLastLocation = async(userId, newCoordinates)=>{
           console.log('User not found');
           return;
         }
-    
+        
+        //longitude first and lattitude second
         user.lastLocation = {
           type: 'Point',
           coordinates: [parseFloat(newCoordinates[0]), parseFloat(newCoordinates[1])],
@@ -40,11 +42,11 @@ const updateUsersLastLocation = async(userId, newCoordinates)=>{
         user.lastLocationUpdatedAt = new Date();
     
         await user.save();
-        console.log('User last location updated successfully');
-        return { success: true, message: "User last location updated successfully" };
+        console.log('users last location updated');
+        return { success: true, message: "users last location updated" };
       } catch (error) {
-        console.log("Error updating user last location:  "+ error);
-        return { success: false, message: "Error updating user last location" };
+        console.log("Error updating users last location:  "+ error);
+        return { success: false, message: "Error updating users last location" };
       }
 
 }
