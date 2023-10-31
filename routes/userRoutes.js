@@ -13,23 +13,23 @@ const {
 router.post(
   "/register",
   [
-    check("name", "Name length should be 1 to 20 characters")
+    check("name", "Name length should be 1 to 100 characters")
       .trim()
-      .isLength({ min: 1, max: 20 }),
+      .isLength({ min: 1, max: 100 }),
     check("phoneNumber", "Mobile number should contains 10 digits")
       .trim()
       .isInt()
       .isLength({ min: 10, max: 10 }),
-    check("email", "Email length should be 3 to 50 characters")
+    check("email", "Email length should be 3 to 100 characters")
       .trim()
       .isEmail()
-      .isLength({ max: 50 }),
+      .isLength({ max: 100 }),
     check("password", "Password length should be 6 to 20 characters")
       .trim()
       .isLength({ min: 6, max: 20 }),
-    check("address", "address should be 1 to 100 characters")
+    check("address", "address should be 1 to 200 characters")
       .trim()
-      .isLength({ min: 1, max: 100 }),
+      .isLength({ min: 1, max: 200 }),
   ],
   userRegister
 );
@@ -37,7 +37,7 @@ router.post(
 router.post(
   "/login",
   [
-    check("username", "username length should be 3 to 50 characters")
+    check("username", "username length should be 3 to 100 characters")
       .trim()
       .isLength({ min: 3, max: 50 }),
     check("password", "Password length should be 6 to 20 characters")

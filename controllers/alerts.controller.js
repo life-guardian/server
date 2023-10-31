@@ -8,7 +8,7 @@ const {
 
 // agency
 const sendAlert = async (req, res) => {
-  //my approach is i am finding the users whose lastLocation is in 10kms of the radius from the location point
+  //my approach is i am finding the users whose lastLocation is in 20kms of the radius from the location point
   //and then i am creating the alert and pushing its _id in receivedAlerts field of user
 
   try {
