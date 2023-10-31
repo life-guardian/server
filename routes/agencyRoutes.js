@@ -14,13 +14,13 @@ const {
 router.post(
   "/register",
   [
-    check("agencyName", "Agency name length should be 1 to 20 characters")
+    check("agencyName", "Agency name length should be 1 to 100 characters")
       .trim()
-      .isLength({ min: 1, max: 20 }),
-    check("agencyEmail", "Agency email length should be 3 to 50 characters")
+      .isLength({ min: 1, max: 100 }),
+    check("agencyEmail", "Agency email length should be 3 to 100 characters")
       .trim()
       .isEmail()
-      .isLength({ max: 50 }),
+      .isLength({ max: 100 }),
     check("agencyPhNo", "Mobile number should contains 10 digits")
       .trim()
       .isInt()
@@ -28,15 +28,15 @@ router.post(
     check("password", "Password length should be 6 to 20 characters")
       .trim()
       .isLength({ min: 6, max: 20 }),
-    check("address", "Address should be 1 to 100 characters")
+    check("address", "Address should be 1 to 200 characters")
       .trim()
-      .isLength({ min: 1, max: 100 }),
+      .isLength({ min: 1, max: 200 }),
     check(
       "representativeName",
-      "Representative name length should be 1 to 30 characters"
+      "Representative name length should be 1 to 100 characters"
     )
       .trim()
-      .isLength({ min: 1, max: 30 }),
+      .isLength({ min: 1, max: 100 }),
   ],
   agencyRegister
 );
@@ -44,9 +44,9 @@ router.post(
 router.post(
   "/login",
   [
-    check("username", "Input length should be 3 to 50 characters")
+    check("username", "Input length should be 3 to 100 characters")
       .trim()
-      .isLength({ min: 3, max: 50 }),
+      .isLength({ min: 3, max: 100 }),
     check("password", "Password length should be 6 to 20 characters")
       .trim()
       .isLength({ min: 6, max: 20 }),
