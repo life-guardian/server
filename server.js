@@ -1,10 +1,18 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
+const http = require("http");
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+
+//socket.io events
+const socketIO = require("./utils/socket");
+socketIO(server);
+
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -34,8 +42,9 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
+
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(
       `Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode`
     );
