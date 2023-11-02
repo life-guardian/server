@@ -5,6 +5,7 @@ const {
   updateUsersLastLocation,
   usersInRangeOfLocation,
 } = require("../utils/userLocation.js");
+const sendMail = require("../utils/sendEmail.js");
 
 // agency
 const sendAlert = async (req, res) => {
@@ -43,7 +44,7 @@ const sendAlert = async (req, res) => {
     //extract _ids of users from usersInRangeOfLocation
     const userIDs = users.map((user) => user._id);
 
-    console.log("Alerts sent to :\n" + users);
+    console.log("Alerts sent to :" + users.length);
 
     //pushes alert id in receivedAlerts field of each user
     await User.updateMany(
@@ -51,6 +52,23 @@ const sendAlert = async (req, res) => {
       { $push: { receivedAlerts: createdAlert._id } },
       { multi: true }
     );
+
+    //extract _ids of users from usersInRangeOfLocation
+    const userEmails = users.map((user) => user.email);
+    const subject = `ALERT from LifeGuardian`;
+    const content = `
+    <b>Hello,</b>
+    <p style="color:tomato; font-size : 15px;">An alert has been issued in your area.</p>
+    <b><strong style="color: #333333;">Alert Name:</strong> ${alertName}</b><br>
+    <b><strong style="color: #333333;">Alert Severity:</strong> ${alertSeverity}</b><br>
+    <b><strong style="color: #333333;">Alert Date:</strong> ${alertForDate}</b><br>
+    <p>Stay safe!</p>
+    `;
+    const isSent = await sendMail(userEmails, subject, content);
+
+    if (isSent) {
+      console.log("Emails sent successfull");
+    }
 
     return res.status(200).json({ message: "Alert sent successfully" });
   } catch (error) {
