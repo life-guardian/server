@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Agency = require("../models/agencyModel.js");
+const Event = require("../models/eventModel.js");
+const ROperation = require("../models/rescueOperationModel.js");
 const { validationResult } = require("express-validator");
 
 const agencyRegister = async (req, res) => {
@@ -59,7 +61,7 @@ const agencyRegister = async (req, res) => {
       secure: process.env.NODE_ENV === "development" ? false : true,
     });
 
-    return res.status(200).json({ message: "Agency registered" });
+    return res.status(200).json({ message: "Agency registered", token: token});
   } catch (error) {
     console.error(`Error in registering agency: ${error}`);
     return res.status(500).json({ message: "Internal server error" });
@@ -110,7 +112,7 @@ const agencyLogin = async (req, res) => {
         secure: process.env.NODE_ENV === "development" ? false : true,
       });
 
-      return res.status(200).json({ message: "Login successfull" });
+      return res.status(200).json({ message: "Login successfull", token: token });
     } else {
       return res.status(400).json({ message: "Incorrect password" });
     }
@@ -131,8 +133,22 @@ const agencyLogout = async (req, res) => {
   }
 };
 
+const eventAndRescueOperationCount = async(req, res)=>{
+
+  try {
+     const rescueOperationsCount = await ROperation.countDocuments({ agencyId: req.user.id});
+     const eventsCount = await ROperation.countDocuments({ agencyId: req.user.id });
+
+     res.status(200).json({rescueOperationsCount, eventsCount});
+  } catch (error) {
+    console.error(`Error in eventAndRescueOperationCount : ${error}`);
+    return res.status(500).json({ message: "Failed to fetch rescueOperationsCount and eventsCount" });
+  }
+}
+
 module.exports = {
   agencyRegister,
   agencyLogin,
   agencyLogout,
+  eventAndRescueOperationCount
 };
