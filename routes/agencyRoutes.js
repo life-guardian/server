@@ -9,6 +9,7 @@ const {
   agencyRegister,
   agencyLogin,
   agencyLogout,
+  eventAndRescueOperationCount
 } = require("../controllers/agency.controller");
 
 router.post(
@@ -52,7 +53,12 @@ router.post(
       .isLength({ min: 6, max: 20 }),
   ],
   agencyLogin
-);   //username should be either email or phone number
+);   //username can be either email or phone number
+
+
+router.get('/eventroperationcount', auth, isAgency, eventAndRescueOperationCount);
+
+
 
 router.delete("/logout", auth, isAgency, agencyLogout);
 
