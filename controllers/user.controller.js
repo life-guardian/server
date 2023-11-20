@@ -17,7 +17,7 @@ const userRegister = async (req, res) => {
     let { name, password, phoneNumber, email, address, locationCoordinates } =
       req.body;
 
-    const mobNum = Number(phoneNumber);
+    const mobNum = Number(`91${agencyPhNo}`);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const alreadyPresent = await User.findOne({
@@ -48,17 +48,12 @@ const userRegister = async (req, res) => {
 
     const token = jwt.sign(
       { email: user.email, id: user._id, isAgency: false },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: process.env.JWT_TOKEN_EXPIRATION,
-      }
+      process.env.JWT_SECRET_KEY
     );
 
-    const cookieExpiration = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days in milliseconds
 
     res.cookie("token", token, {
       httpOnly: true,
-      expires: cookieExpiration,
       secure: process.env.NODE_ENV === "development" ? false : true,
     });
 
@@ -87,7 +82,7 @@ const userLogin = async (req, res) => {
       user = await User.findOne({ email: username });
     } else {
       // If username is a number, find by phone
-      user = await User.findOne({ phoneNumber: Number(username) });
+      user = await User.findOne({ phoneNumber: Number(`91${username}`) });
     }
     if (!user)
       return res.status(404).json({ message: "Account not registered" });
@@ -97,10 +92,7 @@ const userLogin = async (req, res) => {
     if (match) {
       const token = jwt.sign(
         { email: user.email, id: user._id, isAgency: false },
-        process.env.JWT_SECRET_KEY,
-        {
-          expiresIn: process.env.JWT_TOKEN_EXPIRATION,
-        }
+        process.env.JWT_SECRET_KEY
       );
 
       //updating lastLocation of user
@@ -113,11 +105,9 @@ const userLogin = async (req, res) => {
         return res.status(400).json({ message: result.message });
       }
 
-      const cookieExpiration = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days in milliseconds
-
+      
       res.cookie("token", token, {
         httpOnly: true,
-        expires: cookieExpiration,
         secure: process.env.NODE_ENV === "development" ? false : true,
       });
 

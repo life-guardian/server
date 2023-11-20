@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment")
 const Alert = require("../models/alertModel.js");
 const User = require("../models/userModel.js");
 const {
@@ -6,6 +7,7 @@ const {
   usersInRangeOfLocation,
 } = require("../utils/userLocation.js");
 const sendMail = require("../utils/sendEmail.js");
+const sendSMS = require("../utils/sendSMS.js");
 
 // agency
 const sendAlert = async (req, res) => {
@@ -44,8 +46,6 @@ const sendAlert = async (req, res) => {
     //extract _ids of users from usersInRangeOfLocation
     const userIDs = users.map((user) => user._id);
 
-    console.log("Alerts sent to :" + users.length);
-
     //pushes alert id in receivedAlerts field of each user
     await User.updateMany(
       { _id: { $in: userIDs } },
@@ -55,22 +55,30 @@ const sendAlert = async (req, res) => {
 
     //extract _ids of users from usersInRangeOfLocation
     const userEmails = users.map((user) => user.email);
+    const userPhoneNumbers = users.map((user) => user.phoneNumber);
+    const formattedAlertDate = moment(alertForDate).format("DD-MMM-YYYY");
     const subject = `ALERT from LifeGuardian`;
     const content = `
     <b>Hello,</b>
     <p style="color:tomato; font-size : 15px;">An alert has been issued in your area.</p>
     <b><strong style="color: #333333;">Alert Name:</strong> ${alertName}</b><br>
     <b><strong style="color: #333333;">Alert Severity:</strong> ${alertSeverity}</b><br>
-    <b><strong style="color: #333333;">Alert Date:</strong> ${alertForDate}</b><br>
+    <b><strong style="color: #333333;">Alert Date:</strong> ${formattedAlertDate}</b><br>
     <p>Stay safe!</p>
     `;
-    const isSent = await sendMail(userEmails, subject, content);
 
-    if (isSent) {
-      console.log("Emails sent successfull");
+    if (userEmails.length > 0) {
+
+      const isEmailSent = await sendMail(userEmails, subject, content);
+      if (isEmailSent) {
+        console.log("Emails sent successfull");
+      }
+      const smsText = `ALERT! Name- ${alertName} severity- ${alertSeverity} date- ${formattedAlertDate}`;
+      await sendSMS(userPhoneNumbers, smsText);
+
     }
 
-    return res.status(200).json({ message: "Alert sent successfully" });
+    return res.status(200).json({ message: `Alert sent to ${userIDs.length} users` });
   } catch (error) {
     console.error(`Error in sending alert: ${error}`);
     return res.status(500).json({ message: "Error in sending alert" });

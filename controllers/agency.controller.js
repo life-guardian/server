@@ -23,7 +23,7 @@ const agencyRegister = async (req, res) => {
       representativeName,
     } = req.body;
 
-    const mobNum = Number(agencyPhNo);
+    const mobNum = Number(`91${agencyPhNo}`);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const alreadyPresent = await Agency.findOne({
@@ -47,17 +47,12 @@ const agencyRegister = async (req, res) => {
 
     const token = jwt.sign(
       { email: agency.email, id: agency._id, isAgency: true },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: process.env.JWT_TOKEN_EXPIRATION,
-      }
+      process.env.JWT_SECRET_KEY
     );
 
-    const cookieExpiration = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days in milliseconds
 
     res.cookie("token", token, {
       httpOnly: true,
-      expires: cookieExpiration,
       secure: process.env.NODE_ENV === "development" ? false : true,
     });
 
@@ -87,7 +82,7 @@ const agencyLogin = async (req, res) => {
       agency = await Agency.findOne({ email: username });
     } else {
       // If username is a number, find by phone
-      agency = await Agency.findOne({ phone: Number(username) });
+      agency = await Agency.findOne({ phone: Number(`91${username}`) });
     }
 
     if (!agency)
@@ -98,17 +93,11 @@ const agencyLogin = async (req, res) => {
     if (match) {
       const token = jwt.sign(
         { email: agency.email, id: agency._id, isAgency: true },
-        process.env.JWT_SECRET_KEY,
-        {
-          expiresIn: process.env.JWT_TOKEN_EXPIRATION,
-        }
+        process.env.JWT_SECRET_KEY
       );
-
-      const cookieExpiration = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000); // 10 days in milliseconds
 
       res.cookie("token", token, {
         httpOnly: true,
-        expires: cookieExpiration,
         secure: process.env.NODE_ENV === "development" ? false : true,
       });
 
