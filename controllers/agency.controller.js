@@ -126,7 +126,7 @@ const eventAndRescueOperationCount = async(req, res)=>{
 
   try {
      const rescueOperationsCount = await ROperation.countDocuments({ agencyId: req.user.id});
-     const eventsCount = await ROperation.countDocuments({ agencyId: req.user.id });
+     const eventsCount = await Event.countDocuments({ agencyId: req.user.id });
 
      res.status(200).json({rescueOperationsCount, eventsCount});
   } catch (error) {
