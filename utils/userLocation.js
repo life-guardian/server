@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const User = require("../models/userModel");
 
-const usersInRangeOfLocation = async (locationCoordinates) => {
+const usersInRangeOfLocation = async (locationCoordinates, rangeInKm) => {
   try {
     // Convert 20 kilometers to miles as the query accepts distance in miles
-    const radiusInMiles = 20 / 1.60934;
+    const radiusInMiles = rangeInKm / 1.60934;
     
     //longitude first and lattitude second
     const options = {
@@ -30,7 +30,7 @@ const updateUsersLastLocation = async(userId, newCoordinates)=>{
     try {
         const user = await User.findById(userId);
         if (!user) {
-          console.log('User not found');
+          console.log('User not found to update its last location');
           return;
         }
         
@@ -42,7 +42,6 @@ const updateUsersLastLocation = async(userId, newCoordinates)=>{
         user.lastLocationUpdatedAt = new Date();
     
         await user.save();
-        console.log('users last location updated');
         return { success: true, message: "users last location updated" };
       } catch (error) {
         console.log("Error updating users last location:  "+ error);
