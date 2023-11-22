@@ -2,10 +2,8 @@ const mongoose = require("mongoose");
 const moment = require("moment")
 const Alert = require("../models/alertModel.js");
 const User = require("../models/userModel.js");
-const {
-  updateUsersLastLocation,
-  usersInRangeOfLocation,
-} = require("../utils/userLocation.js");
+const Agency = require("../models/agencyModel.js");
+const { usersInRangeOfLocation } = require("../utils/userLocation.js");
 const sendMail = require("../utils/sendEmail.js");
 const sendSMS = require("../utils/sendSMS.js");
 
@@ -16,13 +14,11 @@ const sendAlert = async (req, res) => {
 
   try {
     // locationCoordinates is an array field with Longitude and latitude
-    const { locationCoordinates, alertName, alertSeverity, alertForDate } =
-      req.body;
+    const { locationCoordinates, alertName, alertSeverity, alertForDate } = req.body;
 
     const result = await usersInRangeOfLocation(locationCoordinates, 20);
-
     if (!result.success) {
-      return res.status(400).json({ message: "Error in finding nearby users" });
+      return res.status(500).json({ message: "Error in finding nearby users" });
     }
 
     const alertLocation = {
@@ -52,8 +48,9 @@ const sendAlert = async (req, res) => {
       { $push: { receivedAlerts: createdAlert._id } },
       { multi: true }
     );
+    
+    const agency = await Agency.findById(req.user.id);
 
-    //extract _ids of users from usersInRangeOfLocation
     const userEmails = users.map((user) => user.email);
     const userPhoneNumbers = users.map((user) => user.phoneNumber);
     const formattedAlertDate = moment(alertForDate).format("DD-MMM-YYYY");
@@ -64,6 +61,7 @@ const sendAlert = async (req, res) => {
     <b><strong style="color: #333333;">Alert Name:</strong> ${alertName}</b><br>
     <b><strong style="color: #333333;">Alert Severity:</strong> ${alertSeverity}</b><br>
     <b><strong style="color: #333333;">Alert Date:</strong> ${formattedAlertDate}</b><br>
+    <b><strong style="color: #333333;">Alerting agency:</strong> ${agency.name}</b><br>
     <p>Stay safe!</p>
     `;
 
@@ -73,7 +71,7 @@ const sendAlert = async (req, res) => {
       if (isEmailSent) {
         console.log("Emails sent successfull");
       }
-      const smsText = `ALERT! Name- ${alertName} severity- ${alertSeverity} date- ${formattedAlertDate}`;
+      const smsText = `ALERT! Name- ${alertName} severity- ${alertSeverity} date- ${formattedAlertDate} alerting agency- ${agency.name}`;
       await sendSMS(userPhoneNumbers, smsText);
 
     }
@@ -90,6 +88,7 @@ const showReceivedAlerts = async (req, res) => {
   const userId = req.user.id;
 
   try {
+    
     const data = await User.findById(userId).populate({
       path: "receivedAlerts",
       populate: {

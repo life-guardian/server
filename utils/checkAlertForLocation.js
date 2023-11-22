@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const User = require("../models/userModel");
 const Alert = require("../models/alertModel");
 
-//check and update receivedAlerts of user, if there is any alert already issued for the area in which users last updated location is
+//check if there is any alert already issued for the area 
 const checkAlertForLocation = async (
   locationCoordinates,
   rangeInKm,
@@ -37,7 +37,8 @@ const checkAlertForLocation = async (
 
     // Find alerts within the specified area, excluding those already received
     const alerts = await Alert.find(options);
-    user.receivedAlerts.push(alerts);
+
+    user.receivedAlerts.push(...alerts.map(alert => alert._id));
     await user.save();
 
     return { success: true };
