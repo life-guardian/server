@@ -27,7 +27,7 @@ router.post(
     check("password", "Password length should be 6 to 20 characters")
       .trim()
       .isLength({ min: 6, max: 20 }),
-    check("address", "address should be 1 to 200 characters")
+    check("address", "Address should be 1 to 200 characters")
       .trim()
       .isLength({ min: 1, max: 200 }),
   ],
@@ -37,7 +37,7 @@ router.post(
 router.post(
   "/login",
   [
-    check("username", "username length should be 3 to 100 characters")
+    check("username", "Username length should be 3 to 100 characters")
       .trim()
       .isLength({ min: 3, max: 50 }),
     check("password", "Password length should be 6 to 20 characters")

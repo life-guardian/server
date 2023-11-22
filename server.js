@@ -12,7 +12,6 @@ const server = http.createServer(app);
 const socketIO = require("./utils/socket");
 socketIO(server);
 
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -37,11 +36,26 @@ app.use("/api/history", historyRoutes); //all history page routes
 app.use("/api/search", findAgencyRoutes); //search agencies by agency name or representative name & view details
 
 app.get("/", (req, res) => {
-  res.send("<h2>Welcome to LifeGuardian</h2>");
+  res.send(`
+  <div style="text-align: center; margin-top: 20%; width: 100%; font-family: "Courier New", monospace;">
+    <h2>Welcome to LifeGuardian!</h2>
+    <h3>This is API base url. Please install mobile app and safeguard yourself.</h3>
+  </div>
+`);
+});
+
+app.get("/*", (req, res) => {
+  res.send(`
+  <div style="text-align: center; margin-top: 15%; font-family: "Courier New", monospace;">
+  <h3>Hey its your LifeGuardian!</h3>
+  <br><br>
+  <h2>Your requested endpoint does not exist.</h2>
+  <br>
+  <h1>Error: 404</h1>
+</div>`);
 });
 
 const PORT = process.env.PORT || 5000;
-
 
 connectDB().then(() => {
   server.listen(PORT, () => {

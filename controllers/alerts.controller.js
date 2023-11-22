@@ -19,7 +19,7 @@ const sendAlert = async (req, res) => {
     const { locationCoordinates, alertName, alertSeverity, alertForDate } =
       req.body;
 
-    const result = await usersInRangeOfLocation(locationCoordinates);
+    const result = await usersInRangeOfLocation(locationCoordinates, 20);
 
     if (!result.success) {
       return res.status(400).json({ message: "Error in finding nearby users" });

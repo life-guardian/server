@@ -32,12 +32,10 @@ const userSchema = new mongoose.Schema(
     lastLocation: {
       type: {
         type: String,
-        enum: ["Point"],
-        required: true,
+        enum: ["Point"]
       },
       coordinates: {
-        type: [Number],
-        required: true,
+        type: [Number]
       },
     },
 
