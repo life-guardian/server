@@ -17,7 +17,7 @@ const userRegister = async (req, res) => {
     let { name, password, phoneNumber, email, address, locationCoordinates } =
       req.body;
 
-    const mobNum = Number(`91${agencyPhNo}`);
+    const mobNum = Number(`91${phoneNumber}`);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const alreadyPresent = await User.findOne({
