@@ -14,27 +14,26 @@ const userRegister = async (req, res) => {
   }
 
   try {
-    let { name, password, phoneNumber, email, address, locationCoordinates } =
-      req.body;
+    let { name, password, phoneNumber, email, address } = req.body;
 
     const mobNum = Number(`91${phoneNumber}`);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const alreadyPresent = await User.findOne({
+    const isAlreadyPresent = await User.findOne({
       $or: [{ email }, { phoneNumber: mobNum }],
     });
 
-    if (alreadyPresent) {
+    if (isAlreadyPresent) {
       return res.status(400).json({
         message: "User already present with the email or phone number",
       });
     }
 
-    //longitude first and lattitude second
-    lastLocation = {
-      type: "Point",
-      coordinates: [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
-    };
+    // //longitude first and lattitude second
+    // lastLocation = {
+    //   type: "Point",
+    //   coordinates: [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
+    // };
 
     const user = await User.create({
       name,
@@ -42,12 +41,12 @@ const userRegister = async (req, res) => {
       phoneNumber: mobNum,
       email: email.toLowerCase(),
       address: address,
-      lastLocation,
-      lastLocationUpdatedAt: Date.now()
+      // lastLocation,
+      // lastLocationUpdatedAt: Date.now()
     });
 
     const token = jwt.sign(
-      { email: user.email, id: user._id, isAgency: false },
+      { id: user._id, isAgency: false },
       process.env.JWT_SECRET_KEY
     );
 
@@ -71,7 +70,7 @@ const userLogin = async (req, res) => {
     res.status(403).json({ message: validationErrors.errors[0].msg });
     return;
   }
-  const { username, password, locationCoordinates } = req.body;
+  const { username, password } = req.body;
 
   try {
 
@@ -91,19 +90,19 @@ const userLogin = async (req, res) => {
 
     if (match) {
       const token = jwt.sign(
-        { email: user.email, id: user._id, isAgency: false },
+        { id: user._id, isAgency: false },
         process.env.JWT_SECRET_KEY
       );
 
-      //updating lastLocation of user
-      //longitude first and lattitude second
-      const result = await updateUsersLastLocation(
-        user._id,
-        locationCoordinates
-      );
-      if (!result.success) {
-        return res.status(400).json({ message: result.message });
-      }
+      // //updating lastLocation of user
+      // //longitude first and lattitude second
+      // const result = await updateUsersLastLocation(
+      //   user._id,
+      //   locationCoordinates
+      // );
+      // if (!result.success) {
+      //   return res.status(400).json({ message: result.message });
+      // }
 
       
       res.cookie("token", token, {

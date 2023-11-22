@@ -26,11 +26,11 @@ const agencyRegister = async (req, res) => {
     const mobNum = Number(`91${agencyPhNo}`);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const alreadyPresent = await Agency.findOne({
+    const isAlreadyPresent = await Agency.findOne({
       $or: [{ email: agencyEmail }, { phone: mobNum }],
     });
 
-    if (alreadyPresent) {
+    if (isAlreadyPresent) {
       return res.status(400).json({
         message: "Agency already present with the email or phone number",
       });
@@ -46,7 +46,7 @@ const agencyRegister = async (req, res) => {
     });
 
     const token = jwt.sign(
-      { email: agency.email, id: agency._id, isAgency: true },
+      { id: agency._id, isAgency: true },
       process.env.JWT_SECRET_KEY
     );
 
@@ -89,7 +89,7 @@ const agencyLogin = async (req, res) => {
 
     if (match) {
       const token = jwt.sign(
-        { email: agency.email, id: agency._id, isAgency: true },
+        { id: agency._id, isAgency: true },
         process.env.JWT_SECRET_KEY
       );
 
@@ -134,11 +134,10 @@ const eventAndRescueOperationCount = async (req, res) => {
     res.status(200).json({ agencyName, rescueOperationsCount, eventsCount });
   } catch (error) {
     console.error(`Error in eventAndRescueOperationCount : ${error}`);
-    return res
-      .status(500)
-      .json({
-        message: "Failed to fetch rescueOperationsCount and eventsCount",
-      });
+    return res.status(500).json({
+      message:
+        "Failed to fetch agencyName rescueOperationsCount and eventsCount",
+    });
   }
 };
 
