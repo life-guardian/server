@@ -29,6 +29,7 @@ const checkAlertForLocation = async (
               parseFloat(locationCoordinates[0]),
               parseFloat(locationCoordinates[1]),
             ],
+            radiusInMiles / 3963.2,
           ],
         },
       },
