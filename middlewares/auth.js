@@ -4,17 +4,12 @@ const jwt = require("jsonwebtoken");
 const auth = app.use(async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    let token = req.cookies.token;
+    const token = authHeader && authHeader.split(" ")[1];
     if (!token) {
-      token = authHeader && authHeader.split(" ")[1];
+      return res.status(401).json({ message: "Missing token" });
     }
-    if (token) {
-      const user = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      req.user = user;
-    } else {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
+    const user = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = user;
     next();
   } catch (error) {
     console.error(`Error in auth middleware: ${error}`);

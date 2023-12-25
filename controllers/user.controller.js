@@ -51,10 +51,10 @@ const userRegister = async (req, res) => {
     );
 
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "development" ? false : true,
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "development" ? false : true,
+    // });
 
     res.status(200).json({ message: "Account created", token: token });
   } catch (error) {
@@ -105,10 +105,10 @@ const userLogin = async (req, res) => {
       // }
 
       
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "development" ? false : true,
-      });
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "development" ? false : true,
+      // });
 
       return res.status(200).json({ message: "Login successfull", token: token });
     } else {
