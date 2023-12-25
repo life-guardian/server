@@ -52,6 +52,11 @@ const userSchema = new mongoose.Schema(
     registeredEvents: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "Event",
+    },
+
+    socketId: {
+      type: String,
+      default: null
     }
 
   },

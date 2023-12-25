@@ -2,10 +2,16 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const http = require("http");
+const cors = require("cors");
 
 dotenv.config();
 
 const app = express();
+app.use(cors(
+  {
+    origin: '*'
+  }
+));
 const server = http.createServer(app);
 
 //socket.io events

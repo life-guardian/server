@@ -34,11 +34,30 @@ const agencySchema = new mongoose.Schema(
       required: true,
     },
 
+    socketId: {
+      type: String,
+      default: null
+    },
+
+    lastLocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+
   },
   {
     timestamps: true,
   }
 );
+
+agencySchema.index({ lastLocation: "2dsphere" });
 
 const Agency = new mongoose.model("Agency", agencySchema);
 

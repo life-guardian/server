@@ -50,10 +50,10 @@ const agencyRegister = async (req, res) => {
       process.env.JWT_SECRET_KEY
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "development" ? false : true,
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "development" ? false : true,
+    // });
 
     return res.status(200).json({ message: "Agency registered", token: token });
   } catch (error) {
@@ -93,10 +93,10 @@ const agencyLogin = async (req, res) => {
         process.env.JWT_SECRET_KEY
       );
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "development" ? false : true,
-      });
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "development" ? false : true,
+      // });
 
       return res
         .status(200)
