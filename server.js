@@ -15,7 +15,7 @@ app.use(cors(
 const server = http.createServer(app);
 
 //socket.io events
-const socketIO = require("./utils/socket");
+const socketIO = require("./socket/socket");
 socketIO(server);
 
 app.use(express.urlencoded({ extended: true }));
@@ -32,6 +32,7 @@ const alertRoutes = require("./routes/alertRoutes");
 const userLocationRoutes = require("./routes/userLocationRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const findAgencyRoutes = require("./routes/findAgencyRoutes");
+const rescueOpsRoutes = require("./routes/rescueOpsRoutes");
 
 app.use("/api/user", userRoutes); //register, login routes for user
 app.use("/api/agency", agencyRoutes); //register , login routes for agency
@@ -40,12 +41,13 @@ app.use("/api/alert", alertRoutes); //send alert, show received alerts
 app.use("/api/userlocation", userLocationRoutes); //routes related to users location
 app.use("/api/history", historyRoutes); //all history page routes
 app.use("/api/search", findAgencyRoutes); //search agencies by agency name or representative name & view details
+app.use("/api/rescueops", rescueOpsRoutes) //start rescue operation
 
 app.get("/", (req, res) => {
   res.send(`
   <div style="text-align: center; margin-top: 20%; width: 100%; font-family: "Courier New", monospace;">
     <h2>Welcome to LifeGuardian!</h2>
-    <h3>This is API base url. Please install mobile app and safeguard yourself.</h3>
+    <h3>This is API base url. Please install mobile app.</h3>
   </div>
 `);
 });

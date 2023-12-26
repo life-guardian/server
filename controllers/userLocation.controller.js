@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/userModel.js");
-const { updateUsersLastLocation } = require("../utils/userLocation.js");
-const checkAlertForLocation = require("../utils/checkAlertForLocation.js");
+const { updateUsersLastLocation, checkAndUpdateAlertForLocation } = require("../utils/location.js");
 
 const updateLastLocationUser = async (req, res) => {
   try {

@@ -2,7 +2,6 @@ const User = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const { updateUsersLastLocation } = require("../utils/userLocation.js");
 const { validationResult } = require("express-validator");
 
 const userRegister = async (req, res) => {

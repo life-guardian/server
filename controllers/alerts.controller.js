@@ -3,7 +3,7 @@ const moment = require("moment")
 const Alert = require("../models/alertModel.js");
 const User = require("../models/userModel.js");
 const Agency = require("../models/agencyModel.js");
-const { usersInRangeOfLocation } = require("../utils/userLocation.js");
+const { usersInRangeOfLocation } = require("../utils/location.js");
 const sendMail = require("../utils/sendEmail.js");
 const sendSMS = require("../utils/sendSMS.js");
 
