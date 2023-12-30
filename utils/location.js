@@ -105,8 +105,9 @@ const checkAndUpdateAlertForLocation = async (
   }
 };
 
-const MAX_DISTANCE = 5; //km
+
 const fetchNearest = async (Model, coordinates) => {
+  const MAX_DISTANCE = 5; //km
   try {
     const results = await Model.find({
       lastLocation: {
