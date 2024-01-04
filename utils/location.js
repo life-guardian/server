@@ -57,8 +57,8 @@ const updateUsersLastLocation = async (userId, newCoordinates) => {
 };
 
 
-//check if there is any alert already issued for the area 
-const checkAndUpdateAlertForLocation = async (
+//check if there is any alert already issued for the area where user is in
+const checkAndUpdateExistingAlert = async (
   locationCoordinates,
   rangeInKm,
   userId
@@ -76,7 +76,7 @@ const checkAndUpdateAlertForLocation = async (
     const alreadyReceivedAlerts = user.receivedAlerts;
 
     const options = {
-      _id: { $nin: alreadyReceivedAlerts }, // Exclude alerts with IDs present in alreadyReceivedAlerts
+      _id: { $nin: alreadyReceivedAlerts }, // Exclude alerts which are already present in alreadyReceivedAlerts
       alertLocation: {
         $geoWithin: {
           $centerSphere: [
@@ -107,7 +107,7 @@ const checkAndUpdateAlertForLocation = async (
 
 
 const fetchNearest = async (Model, coordinates) => {
-  const MAX_DISTANCE = 5; //km
+  const MAX_DISTANCE = 10; //km
   try {
     const results = await Model.find({
       lastLocation: {
@@ -131,6 +131,6 @@ const fetchNearest = async (Model, coordinates) => {
 module.exports = {
   usersInRangeOfLocation,
   updateUsersLastLocation,
-  checkAndUpdateAlertForLocation,
+  checkAndUpdateExistingAlert,
   fetchNearest,
 };
