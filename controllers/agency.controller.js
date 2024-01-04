@@ -110,16 +110,6 @@ const agencyLogin = async (req, res) => {
   }
 };
 
-const agencyLogout = async (req, res) => {
-  try {
-    res.clearCookie("token", { httpOnly: true });
-
-    return res.status(200).json({ message: "Logged out" });
-  } catch (error) {
-    console.error(`Error in Logout : ${error}`);
-    return res.status(500).json({ message: "Logout failed" });
-  }
-};
 
 const eventAndRescueOperationCount = async (req, res) => {
   try {
@@ -144,6 +134,5 @@ const eventAndRescueOperationCount = async (req, res) => {
 module.exports = {
   agencyRegister,
   agencyLogin,
-  agencyLogout,
   eventAndRescueOperationCount,
 };

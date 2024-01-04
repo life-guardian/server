@@ -28,4 +28,26 @@ const startRescueOps = async (req, res) => {
   }
 };
 
-module.exports = { startRescueOps };
+
+//agency
+const deleteRescueOps = async (req, res) => {
+  const rescueOpsId = req.params.rescueOpsId;
+
+  try {
+    const deletedRescueOps = await ROperation.findOneAndDelete({
+      _id: rescueOpsId,
+      agencyId: req.user.id,
+    });
+
+    if (!deletedRescueOps) {
+      return res.status(404).json({ message: "Rescue operation not found" });
+    }
+
+    res.status(200).json({ message: "Rescue operation deleted successfully" });
+  } catch (error) {
+    console.error(`Error in deleting Rescue operation: ${error}`);
+    return res.status(500).json({ message: "Error in deleting rescue operation" });
+  }
+};
+
+module.exports = { startRescueOps, deleteRescueOps };

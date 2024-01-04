@@ -35,6 +35,13 @@ const alertSchema = new mongoose.Schema(
       ref: "Agency",
       required: true,
     },
+    //alerts received by users
+    receivers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   
   },
   {

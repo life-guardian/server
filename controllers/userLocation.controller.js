@@ -1,22 +1,21 @@
 const mongoose = require("mongoose");
 const User = require("../models/userModel.js");
-const { updateUsersLastLocation, checkAndUpdateAlertForLocation } = require("../utils/location.js");
+const { updateUsersLastLocation, checkAndUpdateExistingAlert } = require("../utils/location.js");
 
 const updateLastLocationUser = async (req, res) => {
   try {
-    //location coordinates is array field with Longitude and lattitude
-    const { locationCoordinates } = req.body;
+    const { latitude, longitude } = req.body;
     
-    const result = await updateUsersLastLocation(req.user.id, locationCoordinates);
+    const result = await updateUsersLastLocation(req.user.id, [longitude, latitude]);
     if(!result.success){
         return res.status(400).json({message: result.message});
     }
   
-    const status = await checkAlertForLocation(locationCoordinates, 20, req.user.id);
+    // const status = await checkAndUpdateExistingAlert([longitude, latitude], 20, req.user.id);
 
-    if(!status.success){
-      return res.status(200).json({message: "Location updated but failed to check and send existing alerts"});
-    }
+    // if(!status.success){
+    //   return res.status(200).json({message: "Location updated but failed to check and send existing alerts"});
+    // }
 
     return res.status(200).json({message: result.message});
   } catch (error) {

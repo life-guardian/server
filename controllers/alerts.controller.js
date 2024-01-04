@@ -3,7 +3,7 @@ const moment = require("moment")
 const Alert = require("../models/alertModel.js");
 const User = require("../models/userModel.js");
 const Agency = require("../models/agencyModel.js");
-const { usersInRangeOfLocation } = require("../utils/location.js");
+const { usersInRangeOfLocation, checkAndUpdateExistingAlert } = require("../utils/location.js");
 const sendMail = require("../utils/sendEmail.js");
 const sendSMS = require("../utils/sendSMS.js");
 
@@ -16,8 +16,11 @@ const sendAlert = async (req, res) => {
     // locationCoordinates is an array field with Longitude and latitude
     const { locationCoordinates, alertName, alertSeverity, alertForDate } = req.body;
 
-    const result = await usersInRangeOfLocation(locationCoordinates, 20);
-    if (!result.success) {
+    const response = await usersInRangeOfLocation(locationCoordinates, 20);
+    const nearbyUsers = response.data;
+    const userIDs = nearbyUsers.map((user) => user._id);
+
+    if (!response.success) {
       return res.status(500).json({ message: "Error in finding nearby users" });
     }
 
@@ -35,12 +38,9 @@ const sendAlert = async (req, res) => {
       alertForDate,
       alertLocation,
       agencyId: req.user.id,
+      receivers: userIDs
     });
 
-    const users = result.data;
-
-    //extract _ids of users from usersInRangeOfLocation
-    const userIDs = users.map((user) => user._id);
 
     //pushes alert id in receivedAlerts field of each user
     await User.updateMany(
@@ -48,11 +48,11 @@ const sendAlert = async (req, res) => {
       { $push: { receivedAlerts: createdAlert._id } },
       { multi: true }
     );
-    
+
     const agency = await Agency.findById(req.user.id);
 
-    const userEmails = users.map((user) => user.email);
-    const userPhoneNumbers = users.map((user) => user.phoneNumber);
+    const userEmails = nearbyUsers.map((user) => user.email);
+    const userPhoneNumbers = nearbyUsers.map((user) => user.phoneNumber);
     const formattedAlertDate = moment(alertForDate).format("DD-MMM-YYYY");
     const subject = `ALERT from LifeGuardian`;
     const content = `
@@ -85,11 +85,17 @@ const sendAlert = async (req, res) => {
 
 //user
 const showReceivedAlerts = async (req, res) => {
-  const userId = req.user.id;
+  const {latitude, longitude} = req.params;
 
   try {
+
+    const result = await checkAndUpdateExistingAlert([longitude, latitude], 20, req.user.id);
+
+    if(!result.success){
+      console.log("Error in checkAndUpdateExistingAlert");
+    }
     
-    const data = await User.findById(userId).populate({
+    const user = await User.findById(req.user.id).populate({
       path: "receivedAlerts",
       populate: {
         path: "agencyId",
@@ -97,11 +103,11 @@ const showReceivedAlerts = async (req, res) => {
       },
     });
 
-    if (!data) {
+    if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const response = data.receivedAlerts.map((alert) => ({
+    const response = user.receivedAlerts.map((alert) => ({
       alertName: alert.alertName,
       alertLocation: alert.alertLocation.coordinates,
       alertForDate: alert.alertForDate,
@@ -118,7 +124,38 @@ const showReceivedAlerts = async (req, res) => {
   }
 };
 
+
+//agency
+const deleteAlert = async (req, res) => {
+  const alertId = req.params.alertId;
+
+  try {
+    const deletedAlert = await Alert.findOneAndDelete({
+      _id: alertId,
+      agencyId: req.user.id,
+    });
+
+    if (!deletedAlert) {
+      return res.status(404).json({ message: "Alert not found" });
+    }
+
+    const receivers = deletedAlert.receivers;
+
+    await User.updateMany(
+      { _id: { $in: receivers } },
+      { $pull: { receivedAlerts: alertId } }
+    );
+
+    res.status(200).json({ message: "Alert deleted successfully" });
+  } catch (error) {
+    console.error(`Error in deleting alert: ${error}`);
+    return res.status(500).json({ message: "Error in deleting alert" });
+  }
+};
+
+
 module.exports = {
   sendAlert,
   showReceivedAlerts,
+  deleteAlert
 };

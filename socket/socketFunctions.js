@@ -6,7 +6,7 @@ const { fetchNearest } = require("../utils/location");
 const THROTTLE_INTERVAL = 5000; //5s
 
 const handleOnConnection = async (socket) => {
-  console.log("User connected: " + socket.id);
+  // console.log("User connected: " + socket.id);
   if (socket.user.isAgency) {
     await Agency.findOneAndUpdate(
       { _id: socket.user.id },
@@ -115,7 +115,7 @@ const handleDisconnect = async (socket) => {
     }
 
     socket.broadcast.emit("disconnected", socket.id);
-    console.log(`${socket.id} disconnected`);
+    // console.log(`${socket.id} disconnected`);
   } catch (error) {
     console.error("Error handling disconnect:", error);
   }
