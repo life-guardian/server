@@ -7,7 +7,6 @@ const { check, validationResult } = require("express-validator");
 const {
   userRegister,
   userLogin,
-  userLogout,
 } = require("../controllers/user.controller");
 
 router.post(
@@ -46,6 +45,6 @@ router.post(
   ],
   userLogin
 );
-router.delete("/logout", auth, userLogout);
+
 
 module.exports = router;

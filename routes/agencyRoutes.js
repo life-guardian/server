@@ -8,7 +8,6 @@ const { check, validationResult } = require("express-validator");
 const {
   agencyRegister,
   agencyLogin,
-  agencyLogout,
   eventAndRescueOperationCount
 } = require("../controllers/agency.controller");
 
@@ -59,7 +58,5 @@ router.post(
 router.get('/eventroperationcount', auth, isAgency, eventAndRescueOperationCount);
 
 
-
-router.delete("/logout", auth, isAgency, agencyLogout);
 
 module.exports = router;
