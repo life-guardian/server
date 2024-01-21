@@ -55,7 +55,7 @@ const userRegister = async (req, res) => {
     //   secure: process.env.NODE_ENV === "development" ? false : true,
     // });
 
-    res.status(200).json({ message: "Account created", token: token });
+    res.status(200).json({ message: "Account created", token: token, data: {name: user.name}});
   } catch (error) {
     console.error(`Error in Registration : ${error}`);
     res.status(500).json({ message: "Internal server error" });
@@ -109,7 +109,7 @@ const userLogin = async (req, res) => {
       //   secure: process.env.NODE_ENV === "development" ? false : true,
       // });
 
-      return res.status(200).json({ message: "Login successfull", token: token });
+      return res.status(200).json({ message: "Login successfull", token: token, data: {name: user.name}});
     } else {
       return res.status(400).json({ message: "Incorrect password" });
     }
