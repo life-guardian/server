@@ -52,6 +52,10 @@ app.get("/", (req, res) => {
 `);
 });
 
+app.get("/health", (req, res) => {
+  res.send("running fine!");
+});
+
 app.get("/*", (req, res) => {
   res.send(`
   <div style="text-align: center; margin-top: 15%; font-family: "Courier New", monospace;">
@@ -63,7 +67,7 @@ app.get("/*", (req, res) => {
 </div>`);
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6000;
 
 connectDB().then(() => {
   server.listen(PORT, () => {
