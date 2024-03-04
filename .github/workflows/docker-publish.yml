@@ -1,10 +1,17 @@
 name: publish
 
 on:
-  pull_request:
-    types: [ "pull_request" ]
+  # Trigger on push event to the production branch
+  push:
     branches: [ "production" ]
-    if: github.event.pull_request.merged == true && github.actor == github.repository_owner
+    # Additional condition to filter by pusher (owner)
+    if: github.actor == github.repository_owner
+
+  # Trigger on pull_request merge event to the production branch
+  pull_request:
+    types: [ "merged" ]
+    branches: [ "production" ]
+    # No extra condition needed as "merged" implies the owner can only merge their own PR
 
 env:
   # Use docker.io for Docker Hub if empty
