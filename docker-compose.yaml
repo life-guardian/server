@@ -2,11 +2,10 @@ version: '3.8'
 
 services:
   life-guardian-server:
-    image: life-guardian-backend:0.0.1
+    image: ghcr.io/pratikjpatil/lifeguardian-backend:latest
     ports:
-      - "5000:5000"
+      - "6000:6000"
     environment:
-    # Load environment variables from .env file
       - NODE_ENV=${NODE_ENV}
       - MONGO_URI=${MONGO_URI}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
