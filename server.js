@@ -7,11 +7,11 @@ const cors = require("cors");
 dotenv.config();
 
 const app = express();
-app.use(cors(
-  {
-    origin: '*'
-  }
-));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 const server = http.createServer(app);
 
 //socket.io events
@@ -41,7 +41,7 @@ app.use("/api/alert", alertRoutes); //send alert, show received alerts
 app.use("/api/userlocation", userLocationRoutes); //routes related to users location
 app.use("/api/history", historyRoutes); //all history page routes
 app.use("/api/search", findAgencyRoutes); //search agencies by agency name or representative name & view details
-app.use("/api/rescueops", rescueOpsRoutes) //start rescue operation
+app.use("/api/rescueops", rescueOpsRoutes); //start rescue operation
 
 app.get("/", (req, res) => {
   res.send(`
@@ -53,7 +53,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  res.status(200).json({message: "status is ok!"});
+  res.status(200).json({ message: "status is GOOD!" });
 });
 
 app.get("/*", (req, res) => {
@@ -72,7 +72,9 @@ const PORT = process.env.PORT || 6000;
 connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(
-      `LifeGuardian-Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode at ${Date.now()}`
+      `LifeGuardian-Server successfully running on port: ${PORT} in ${
+        process.env.NODE_ENV
+      } mode at ${Date.now()}`
     );
   });
 });
