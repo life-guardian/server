@@ -34,6 +34,12 @@ const agencySchema = new mongoose.Schema(
       required: true,
     },
 
+    onGoingRescueOperation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ROperation",
+      default: null
+    },
+
     socketId: {
       type: String,
       default: null

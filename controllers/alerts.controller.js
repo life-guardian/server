@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const moment = require("moment")
+const moment = require("moment");
 const Alert = require("../models/alertModel.js");
 const User = require("../models/userModel.js");
 const Agency = require("../models/agencyModel.js");
@@ -26,10 +26,7 @@ const sendAlert = async (req, res) => {
 
     const alertLocation = {
       type: "Point",
-      coordinates: [
-        parseFloat(locationCoordinates[0]),
-        parseFloat(locationCoordinates[1]),
-      ],
+      coordinates: [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
     };
 
     const createdAlert = await Alert.create({
@@ -38,16 +35,11 @@ const sendAlert = async (req, res) => {
       alertForDate,
       alertLocation,
       agencyId: req.user.id,
-      receivers: userIDs
+      receivers: userIDs,
     });
 
-
     //pushes alert id in receivedAlerts field of each user
-    await User.updateMany(
-      { _id: { $in: userIDs } },
-      { $push: { receivedAlerts: createdAlert._id } },
-      { multi: true }
-    );
+    await User.updateMany({ _id: { $in: userIDs } }, { $push: { receivedAlerts: createdAlert._id } }, { multi: true });
 
     const agency = await Agency.findById(req.user.id);
 
@@ -66,14 +58,12 @@ const sendAlert = async (req, res) => {
     `;
 
     if (userEmails.length > 0) {
-
       const isEmailSent = await sendMail(userEmails, subject, content);
       if (isEmailSent) {
         console.log("Emails sent successfull");
       }
       const smsText = `ALERT! Name- ${alertName} severity- ${alertSeverity} date- ${formattedAlertDate} alerting agency- ${agency.name}`;
       await sendSMS(userPhoneNumbers, smsText);
-
     }
 
     return res.status(200).json({ message: `Alert sent to ${userIDs.length} users` });
@@ -85,16 +75,15 @@ const sendAlert = async (req, res) => {
 
 //user
 const showReceivedAlerts = async (req, res) => {
-  const {latitude, longitude} = req.params;
+  const { latitude, longitude } = req.params;
 
   try {
-
     const result = await checkAndUpdateExistingAlert([longitude, latitude], 20, req.user.id);
 
-    if(!result.success){
+    if (!result.success) {
       console.log("Error in checkAndUpdateExistingAlert");
     }
-    
+
     const user = await User.findById(req.user.id).populate({
       path: "receivedAlerts",
       populate: {
@@ -118,12 +107,9 @@ const showReceivedAlerts = async (req, res) => {
     return res.status(200).json(response);
   } catch (error) {
     console.error(`Error in fetching received alerts: ${error}`);
-    return res
-      .status(500)
-      .json({ message: "Error in fetching received alerts" });
+    return res.status(500).json({ message: "Error in fetching received alerts" });
   }
 };
-
 
 //agency
 const deleteAlert = async (req, res) => {
@@ -141,10 +127,7 @@ const deleteAlert = async (req, res) => {
 
     const receivers = deletedAlert.receivers;
 
-    await User.updateMany(
-      { _id: { $in: receivers } },
-      { $pull: { receivedAlerts: alertId } }
-    );
+    await User.updateMany({ _id: { $in: receivers } }, { $pull: { receivedAlerts: alertId } });
 
     res.status(200).json({ message: "Alert deleted successfully" });
   } catch (error) {
@@ -153,9 +136,8 @@ const deleteAlert = async (req, res) => {
   }
 };
 
-
 module.exports = {
   sendAlert,
   showReceivedAlerts,
-  deleteAlert
+  deleteAlert,
 };
