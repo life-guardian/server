@@ -1,6 +1,7 @@
 const _ = require("lodash");
 const User = require("../models/userModel");
 const Agency = require("../models/agencyModel");
+const ROperation = require("../models/rescueOperationModel");
 const { fetchNearest } = require("../utils/location");
 
 const THROTTLE_INTERVAL = 5000; //5s
@@ -31,7 +32,7 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
   };
   console.log(`User location : ${JSON.stringify(userLocation)}`);
 
-  await User.findOneAndUpdate(
+  const user = await User.findOneAndUpdate(
     { _id: socket.user.id },
     { $set: { lastLocation: userLocation } }
   );
@@ -45,8 +46,15 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
     .filter((agency) => agency.socketId)
     .map((agency) => agency.socketId);
 
+  const responseData = {
+    ...locationPayload, 
+    userId: socket.user.id,
+    userName: user.name,
+    phoneNumber: user.phoneNumber
+  }
+
   if (socketIds.length > 0) {
-    socket.broadcast.to(socketIds).emit("userLocationUpdate", locationPayload);
+    socket.broadcast.to(socketIds).emit("userLocationUpdate", responseData);
   }
 }, THROTTLE_INTERVAL);
 
@@ -63,10 +71,10 @@ const handleAgencyLocationUpdate = _.throttle(
 
     console.log(`Agency location : ${JSON.stringify(agencyLocation)}`);
 
-    await Agency.findOneAndUpdate(
+    const agency = await Agency.findOneAndUpdate(
       { _id: socket.user.id },
       { $set: { lastLocation: agencyLocation } }
-    );
+    ).populate("onGoingRescueOperation");
 
     const nearbyAgencies = await fetchNearest(Agency, [
       parseFloat(locationPayload.lng),
@@ -88,16 +96,27 @@ const handleAgencyLocationUpdate = _.throttle(
       .filter((user) => user.socketId)
       .map((user) => user.socketId);
 
+      const responseData = {
+        ...locationPayload, 
+        agencyId: socket.user.id,
+        agencyName: agency.name,
+        phoneNumber: agency.phone,
+        representativeName: agency.representativeName,
+        rescueOpsName: agency.onGoingRescueOperation.name,
+        rescueOpsDescription: agency.onGoingRescueOperation.description,
+        rescueTeamSize: agency.onGoingRescueOperation.rescueTeamSize,
+      }
+
     if (agencySocketIds.length > 0) {
       socket.broadcast
         .to(agencySocketIds)
-        .emit("agencyLocationUpdate", locationPayload);
+        .emit("agencyLocationUpdate", responseData);
     }
 
     if (userSocketIds.length > 0) {
       socket.broadcast
         .to(userSocketIds)
-        .emit("agencyLocationUpdate", locationPayload);
+        .emit("agencyLocationUpdate", responseData);
     }
   },
   THROTTLE_INTERVAL
