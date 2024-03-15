@@ -7,11 +7,11 @@ const cors = require("cors");
 dotenv.config();
 
 const app = express();
-app.use(cors(
-  {
-    origin: '*'
-  }
-));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 const server = http.createServer(app);
 
 //socket.io events
@@ -41,11 +41,11 @@ app.use("/api/alert", alertRoutes); //send alert, show received alerts
 app.use("/api/userlocation", userLocationRoutes); //routes related to users location
 app.use("/api/history", historyRoutes); //all history page routes
 app.use("/api/search", findAgencyRoutes); //search agencies by agency name or representative name & view details
-app.use("/api/rescueops", rescueOpsRoutes) //start rescue operation
+app.use("/api/rescueops", rescueOpsRoutes); //start rescue operation
 
 app.get("/", (req, res) => {
   res.send(`
-  <div style="text-align: center; margin-top: 20%; width: 100%; font-family: "Courier New", monospace;">
+  <div style="text-align: center; margin-top: 20%; width: 100%; font-family: monospace;">
     <h2>Welcome to LifeGuardian!</h2>
     <h3>This is API base url. Please install mobile app.</h3>
   </div>
@@ -53,12 +53,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  res.status(200).json({message: "Running fine!"});
+  res.status(200).json({ message: "status is OK😊!" });
 });
 
 app.get("/*", (req, res) => {
   res.send(`
-  <div style="text-align: center; margin-top: 15%; font-family: "Courier New", monospace;">
+  <div style="text-align: center; margin-top: 15%; font-family: monospace;">
   <h3>Hey its your LifeGuardian!</h3>
   <br><br>
   <h2>Your requested endpoint does not exist.</h2>
@@ -72,7 +72,7 @@ const PORT = process.env.PORT || 6000;
 connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(
-      `Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode`
+      `LifeGuardian-Server successfully started on port: ${PORT} in ${process.env.NODE_ENV} mode at ${Date.now()}`
     );
   });
 });
