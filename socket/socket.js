@@ -3,6 +3,7 @@ const socketAuth = require("../middlewares/socketAuth");
 const {handleOnConnection, handleUserLocationUpdate, handleAgencyLocationUpdate, handleDisconnect} = require('./socketFunctions');
 
 const socketIO = (server) => {
+  
   const io = new Server(server, {
     cors: {
       origin: "*",
@@ -10,6 +11,8 @@ const socketIO = (server) => {
   });
 
   io.use((socket, next) => {
+    
+  console.log(`Connection trying to validate`);
     socketAuth(socket, next);
   });
 
