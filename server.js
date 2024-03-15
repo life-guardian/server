@@ -72,7 +72,7 @@ const PORT = process.env.PORT || 6000;
 connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(
-      `LifeGuardian-Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode`
+      `LifeGuardian-Server successfully running on port: ${PORT} in ${process.env.NODE_ENV} mode at ${Date.now()}`
     );
   });
 });
