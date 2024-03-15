@@ -4,7 +4,7 @@ const Agency = require("../models/agencyModel");
 const ROperation = require("../models/rescueOperationModel");
 const { fetchNearest } = require("../utils/location");
 
-const THROTTLE_INTERVAL = 2000; //2s
+const THROTTLE_INTERVAL = 5000; //5s
 
 const handleOnConnection = async (socket) => {
   // console.log("User connected: " + socket.id);
@@ -47,11 +47,11 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
     .map((agency) => agency.socketId);
 
   const responseData = {
-    ...locationPayload,
+    ...locationPayload, 
     userId: socket.user.id,
     userName: user.name,
-    phoneNumber: user.phoneNumber,
-  };
+    phoneNumber: user.phoneNumber
+  }
 
   if (socketIds.length > 0) {
     socket.broadcast.to(socketIds).emit("userLocationUpdate", responseData);
@@ -71,14 +71,14 @@ const handleAgencyLocationUpdate = _.throttle(
 
     console.log(`Agency location : ${JSON.stringify(agencyLocation)}`);
 
-    await Agency.findOneAndUpdate(
-      { _id: socket.user.id },
-      { $set: { lastLocation: agencyLocation } }
-    );
+    const updatedAgency = await Agency.findOneAndUpdate(
+  { _id: socket.user.id },
+  { $set: { lastLocation: agencyLocation } }
+);
 
-    const agencyData = await Agency.findById(socket.user.id).populate(
-      "onGoingRescueOperation"
-    );
+// perform a separate query to populate the field
+const agency = await Agency.populate(updatedAgency, { path: "onGoingRescueOperation" });
+
 
     const nearbyAgencies = await fetchNearest(Agency, [
       parseFloat(locationPayload.lng),
@@ -100,16 +100,16 @@ const handleAgencyLocationUpdate = _.throttle(
       .filter((user) => user.socketId)
       .map((user) => user.socketId);
 
-    const responseData = {
-      ...locationPayload,
-      agencyId: socket.user.id,
-      agencyName: agencyData.name,
-      phoneNumber: agencyData.phone,
-      representativeName: agencyData.representativeName,
-      rescueOpsName: agencyData.onGoingRescueOperation.name,
-      rescueOpsDescription: agencyData.onGoingRescueOperation.description,
-      rescueTeamSize: agencyData.onGoingRescueOperation.rescueTeamSize,
-    };
+      const responseData = {
+        ...locationPayload, 
+        agencyId: socket.user.id,
+        agencyName: agency.name,
+        phoneNumber: agency.phone,
+        representativeName: agency.representativeName,
+        rescueOpsName: agency.onGoingRescueOperation.name,
+        rescueOpsDescription: agency.onGoingRescueOperation.description,
+        rescueTeamSize: agency.onGoingRescueOperation.rescueTeamSize,
+      }
 
     if (agencySocketIds.length > 0) {
       socket.broadcast
