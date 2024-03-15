@@ -72,9 +72,13 @@ const handleAgencyLocationUpdate = _.throttle(
     console.log(`Agency location : ${JSON.stringify(agencyLocation)}`);
 
     const agency = await Agency.findOneAndUpdate(
-      { _id: socket.user.id },
-      { $set: { lastLocation: agencyLocation } }
-    ).populate("onGoingRescueOperation");
+  { _id: socket.user.id },
+  { $set: { lastLocation: agencyLocation } }
+);
+
+// perform a separate query to populate the field
+const populatedAgency = await Agency.populate(agency, { path: "onGoingRescueOperation" });
+
 
     const nearbyAgencies = await fetchNearest(Agency, [
       parseFloat(locationPayload.lng),
