@@ -45,7 +45,7 @@ app.use("/api/rescueops", rescueOpsRoutes); //start rescue operation
 
 app.get("/", (req, res) => {
   res.send(`
-  <div style="text-align: center; margin-top: 20%; width: 100%; font-family: "Courier New", monospace;">
+  <div style="text-align: center; margin-top: 20%; width: 100%; font-family: monospace;">
     <h2>Welcome to LifeGuardian!</h2>
     <h3>This is API base url. Please install mobile app.</h3>
   </div>
@@ -58,7 +58,7 @@ app.get("/health", (req, res) => {
 
 app.get("/*", (req, res) => {
   res.send(`
-  <div style="text-align: center; margin-top: 15%; font-family: "Courier New", monospace;">
+  <div style="text-align: center; margin-top: 15%; font-family: monospace;">
   <h3>Hey its your LifeGuardian!</h3>
   <br><br>
   <h2>Your requested endpoint does not exist.</h2>
@@ -72,9 +72,7 @@ const PORT = process.env.PORT || 6000;
 connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(
-      `LifeGuardian-Server successfully running on port: ${PORT} in ${
-        process.env.NODE_ENV
-      } mode at ${Date.now()}`
+      `LifeGuardian-Server successfully started on port: ${PORT} in ${process.env.NODE_ENV} mode at ${Date.now()}`
     );
   });
 });

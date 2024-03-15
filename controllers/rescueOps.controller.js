@@ -22,9 +22,9 @@ const startRescueOps = async (req, res) => {
 
     await rescueOps.save();
 
-    await Agency.findByIdAndUpdate(req.user.id, {$set:{onGoingRescueOperation: rescueOps._id}});
+    await Agency.findByIdAndUpdate(req.user.id, { $set: { onGoingRescueOperation: rescueOps._id } });
 
-    res.status(200).json({ message: "Rescue operation created" });
+    res.status(200).json({ message: "Rescue operation started", rescueOpsId: rescueOps._id });
   } catch (error) {
     console.error(`Error starting rescue operation: ${error}`);
     return res.status(500).json({ message: "Error starting rescue operation" });
@@ -47,14 +47,12 @@ const stopRescueOps = async (req, res) => {
     if (!stoppedRescueOps) {
       return res.status(404).json({ message: "Rescue operation not found" });
     }
-    await Agency.findByIdAndUpdate(req.user.id, {$set:{onGoingRescueOperation: null}});
+    await Agency.findByIdAndUpdate(req.user.id, { $set: { onGoingRescueOperation: null } });
 
     res.status(200).json({ message: "Rescue operation stopped" });
   } catch (error) {
     console.error(`Error in stopping Rescue operation: ${error}`);
-    return res
-      .status(500)
-      .json({ message: "Error in stopping rescue operation" });
+    return res.status(500).json({ message: "Error in stopping rescue operation" });
   }
 };
 
@@ -75,9 +73,7 @@ const deleteRescueOps = async (req, res) => {
     res.status(200).json({ message: "Rescue operation deleted successfully" });
   } catch (error) {
     console.error(`Error in deleting Rescue operation: ${error}`);
-    return res
-      .status(500)
-      .json({ message: "Error in deleting rescue operation" });
+    return res.status(500).json({ message: "Error in deleting rescue operation" });
   }
 };
 

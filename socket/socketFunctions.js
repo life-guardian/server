@@ -9,42 +9,43 @@ const THROTTLE_INTERVAL = 2000; //2s
 const handleOnConnection = async (socket) => {
   // console.log("User connected: " + socket.id);
   if (socket.user.isAgency) {
-    await Agency.findOneAndUpdate(
-      { _id: socket.user.id },
-      { $set: { socketId: socket.id } }
-    );
+    await Agency.findOneAndUpdate({ _id: socket.user.id }, { $set: { socketId: socket.id } });
   } else {
-    await User.findOneAndUpdate(
-      { _id: socket.user.id },
-      { $set: { socketId: socket.id } }
-    );
+    await User.findOneAndUpdate({ _id: socket.user.id }, { $set: { socketId: socket.id } });
   }
 };
 
 // Throttle the userLocationUpdate event
 const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
+  if (socket.user.isAgency) {
+    socket.emit("userLocationUpdate", {
+      status: false,
+      message: "You are not authorized as user",
+    });
+    return;
+  }
   const userLocation = {
     type: "Point",
-    coordinates: [
-      parseFloat(locationPayload.lng),
-      parseFloat(locationPayload.lat),
-    ],
+    coordinates: [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)],
   };
-  console.log(`User location : ${JSON.stringify(userLocation)}`);
 
   const user = await User.findOneAndUpdate(
     { _id: socket.user.id },
-    { $set: { lastLocation: userLocation } }
+    { $set: { lastLocation: userLocation } },
+    { new: true }
   );
 
-  const nearbyAgencies = await fetchNearest(Agency, [
-    parseFloat(locationPayload.lng),
-    parseFloat(locationPayload.lat),
-  ]);
+  if (!user) {
+    socket.emit("userLocationUpdate", {
+      status: false,
+      message: "User not found",
+    });
+    return;
+  }
 
-  const socketIds = nearbyAgencies
-    .filter((agency) => agency.socketId)
-    .map((agency) => agency.socketId);
+  const nearbyAgencies = await fetchNearest(Agency, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
+
+  const socketIds = nearbyAgencies.filter((agency) => agency.socketId).map((agency) => agency.socketId);
 
   const responseData = {
     ...locationPayload,
@@ -59,85 +60,66 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
 }, THROTTLE_INTERVAL);
 
 // Throttle the agencyLocationUpdate event
-const handleAgencyLocationUpdate = _.throttle(
-  async (socket, locationPayload) => {
-    const agencyLocation = {
-      type: "Point",
-      coordinates: [
-        parseFloat(locationPayload.lng),
-        parseFloat(locationPayload.lat),
-      ],
-    };
+const handleAgencyLocationUpdate = _.throttle(async (socket, locationPayload) => {
+  if (!socket.user.isAgency) {
+    socket.emit("agencyLocationUpdate", {
+      status: false,
+      message: "You are not authorized as agency",
+    });
+    return;
+  }
 
-    console.log(`Agency location : ${JSON.stringify(agencyLocation)}`);
+  const agencyLocation = {
+    type: "Point",
+    coordinates: [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)],
+  };
 
-    await Agency.findOneAndUpdate(
-      { _id: socket.user.id },
-      { $set: { lastLocation: agencyLocation } }
-    );
+  const result = await Agency.findOneAndUpdate({ _id: socket.user.id }, { $set: { lastLocation: agencyLocation } });
+  if (!result) {
+    socket.emit("agencyLocationUpdate", {
+      status: false,
+      message: "You as agency not found",
+    });
+    return;
+  }
+  const agencyData = await Agency.findById(socket.user.id).populate("onGoingRescueOperation");
 
-    const agencyData = await Agency.findById(socket.user.id).populate(
-      "onGoingRescueOperation"
-    );
+  const nearbyAgencies = await fetchNearest(Agency, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
 
-    const nearbyAgencies = await fetchNearest(Agency, [
-      parseFloat(locationPayload.lng),
-      parseFloat(locationPayload.lat),
-    ]);
+  // console.log(nearbyAgencies);
 
-    // console.log(nearbyAgencies);
+  const nearbyusers = await fetchNearest(User, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
 
-    const nearbyusers = await fetchNearest(User, [
-      parseFloat(locationPayload.lng),
-      parseFloat(locationPayload.lat),
-    ]);
+  const agencySocketIds = nearbyAgencies.filter((agency) => agency.socketId).map((agency) => agency.socketId);
 
-    const agencySocketIds = nearbyAgencies
-      .filter((agency) => agency.socketId)
-      .map((agency) => agency.socketId);
+  const userSocketIds = nearbyusers.filter((user) => user.socketId).map((user) => user.socketId);
 
-    const userSocketIds = nearbyusers
-      .filter((user) => user.socketId)
-      .map((user) => user.socketId);
+  const responseData = {
+    ...locationPayload,
+    agencyId: socket.user.id,
+    agencyName: agencyData.name,
+    phoneNumber: agencyData.phone,
+    representativeName: agencyData.representativeName,
+    rescueOpsName: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.name : null,
+    rescueOpsDescription: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.description : null,
+    rescueTeamSize: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.rescueTeamSize : null,
+  };
 
-    const responseData = {
-      ...locationPayload,
-      agencyId: socket.user.id,
-      agencyName: agencyData.name,
-      phoneNumber: agencyData.phone,
-      representativeName: agencyData.representativeName,
-      rescueOpsName: agencyData.onGoingRescueOperation.name,
-      rescueOpsDescription: agencyData.onGoingRescueOperation.description,
-      rescueTeamSize: agencyData.onGoingRescueOperation.rescueTeamSize,
-    };
+  if (agencySocketIds.length > 0) {
+    socket.broadcast.to(agencySocketIds).emit("agencyLocationUpdate", responseData);
+  }
 
-    if (agencySocketIds.length > 0) {
-      socket.broadcast
-        .to(agencySocketIds)
-        .emit("agencyLocationUpdate", responseData);
-    }
-
-    if (userSocketIds.length > 0) {
-      socket.broadcast
-        .to(userSocketIds)
-        .emit("agencyLocationUpdate", responseData);
-    }
-  },
-  THROTTLE_INTERVAL
-);
+  if (userSocketIds.length > 0) {
+    socket.broadcast.to(userSocketIds).emit("agencyLocationUpdate", responseData);
+  }
+}, THROTTLE_INTERVAL);
 
 const handleDisconnect = async (socket) => {
   try {
     if (socket.user.isAgency) {
-      await Agency.findOneAndUpdate(
-        { _id: socket.user.id },
-        { $set: { socketId: null } }
-      );
+      await Agency.findOneAndUpdate({ _id: socket.user.id }, { $set: { socketId: null } });
     } else {
-      await User.findOneAndUpdate(
-        { _id: socket.user.id },
-        { $set: { socketId: null } }
-      );
+      await User.findOneAndUpdate({ _id: socket.user.id }, { $set: { socketId: null } });
     }
 
     socket.broadcast.emit("disconnected", socket.id);
