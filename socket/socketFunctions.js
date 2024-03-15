@@ -29,7 +29,7 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
       parseFloat(locationPayload.lat),
     ],
   };
-  console.log(`User location : ${userLocation}`);
+  console.log(`User location : ${JSON.stringify(userLocation)}`);
 
   await User.findOneAndUpdate(
     { _id: socket.user.id },
@@ -61,8 +61,7 @@ const handleAgencyLocationUpdate = _.throttle(
       ],
     };
 
-    console.log(`Agency location : ${agencyLocation}`);
-    
+    console.log(`Agency location : ${JSON.stringify(agencyLocation)}`);
 
     await Agency.findOneAndUpdate(
       { _id: socket.user.id },
