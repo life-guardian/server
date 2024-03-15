@@ -29,6 +29,7 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
       parseFloat(locationPayload.lat),
     ],
   };
+  console.log(`User location : ${userLocation}`);
 
   await User.findOneAndUpdate(
     { _id: socket.user.id },
@@ -60,6 +61,9 @@ const handleAgencyLocationUpdate = _.throttle(
       ],
     };
 
+    console.log(`Agency location : ${agencyLocation}`);
+    
+
     await Agency.findOneAndUpdate(
       { _id: socket.user.id },
       { $set: { lastLocation: agencyLocation } }
@@ -70,7 +74,7 @@ const handleAgencyLocationUpdate = _.throttle(
       parseFloat(locationPayload.lat),
     ]);
 
-    console.log(nearbyAgencies);
+    // console.log(nearbyAgencies);
 
     const nearbyusers = await fetchNearest(User, [
       parseFloat(locationPayload.lng),
