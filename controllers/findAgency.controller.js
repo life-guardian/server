@@ -24,10 +24,7 @@ const findAgency = async (req, res) => {
     const count = await Agency.countDocuments(query);
     const totalPages = Math.ceil(count / limit);
 
-    const agencies = await Agency.find(query)
-      .select("_id name representativeName")
-      .skip(skip)
-      .limit(limit);
+    const agencies = await Agency.find(query).select("_id name representativeName").skip(skip).limit(limit);
 
     res.status(200).json({ totalPages, currentPage: page, agencies });
   } catch (error) {

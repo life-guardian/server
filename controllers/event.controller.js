@@ -23,9 +23,7 @@ const agencyAddEvent = async (req, res) => {
     });
 
     if (found) {
-      return res
-        .status(400)
-        .json({ message: "You already have an event on this date" });
+      return res.status(400).json({ message: "You already have an event on this date" });
     }
 
     const location = {
@@ -138,27 +136,20 @@ const registerForEvent = async (req, res) => {
     // Check if the event exists in the database
     const foundEvent = await Event.findById(eventId);
     if (!foundEvent) {
-      return res
-        .status(400)
-        .json({ message: "Event you are trying to register does not exist" });
+      return res.status(400).json({ message: "Event you are trying to register does not exist" });
     }
 
     // Check if the loggedIn user is already registered for the event
     const exists = foundEvent.registrations.includes(req.user.id);
     if (exists) {
-      return res
-        .status(400)
-        .json({ message: "You have already registered for this event" });
+      return res.status(400).json({ message: "You have already registered for this event" });
     }
 
     // Update the event with the user's registration
     foundEvent.registrations.push(req.user.id);
     await foundEvent.save();
 
-    await User.findOneAndUpdate(
-      { _id: req.user.id },
-      { $push: { registeredEvents: foundEvent._id } }
-    );
+    await User.findOneAndUpdate({ _id: req.user.id }, { $push: { registeredEvents: foundEvent._id } });
 
     res.status(200).json({ message: "Successfully registered for the event!" });
   } catch (error) {
@@ -193,10 +184,7 @@ const upcomingNearbyEvents = async (req, res) => {
     const options = {
       location: {
         $geoWithin: {
-          $centerSphere: [
-            [parseFloat(longitude), parseFloat(latitude)],
-            radiusInMiles / 3963.2,
-          ],
+          $centerSphere: [[parseFloat(longitude), parseFloat(latitude)], radiusInMiles / 3963.2],
         },
       },
     };

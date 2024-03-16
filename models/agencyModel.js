@@ -34,11 +34,34 @@ const agencySchema = new mongoose.Schema(
       required: true,
     },
 
+    onGoingRescueOperation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ROperation",
+      default: null
+    },
+
+    socketId: {
+      type: String,
+      default: null
+    },
+
+    lastLocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
+
   },
   {
     timestamps: true,
   }
 );
+
+agencySchema.index({ lastLocation: "2dsphere" });
 
 const Agency = new mongoose.model("Agency", agencySchema);
 

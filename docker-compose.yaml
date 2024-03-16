@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  life-guardian-server:
+    image: ghcr.io/pratikjpatil/lifeguardian-backend:latest
+    ports:
+      - "6000:6000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - VONAGE_API_KEY=${VONAGE_API_KEY}
+      - VONAGE_API_SECRET=${VONAGE_API_SECRET}
