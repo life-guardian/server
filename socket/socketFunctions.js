@@ -31,7 +31,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
           phoneNumber: user.phoneNumber,
         };
       });
-    socket.emit("userLocationUpdate", users);
+    socket.emit("initialConnectReceiveNearbyUsers", users);
   }
 
   //if the socket user is agency or user send nearbyAgencies
@@ -55,7 +55,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
       };
     });
 
-  socket.emit("agencyLocationUpdate", agencies);
+  socket.emit("initialConnectReceiveNearbyAgencies", agencies);
 };
 
 // Throttle the userLocationUpdate event
