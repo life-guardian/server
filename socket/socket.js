@@ -29,9 +29,9 @@ const socketIO = (server) => {
 
     socket.on("agencyLocationUpdate", async (locationPayload) => {
       const updateId = Date.now(); // Generate unique identifier
-      console.log(`received update of: ${socket.id} and update id: ${updateId}`);
-      await handleAgencyLocationUpdate(socket, locationPayload);
-      console.log(`agency update: ${socket.id} and update id: ${updateId}`);
+      console.log(`received update of -: ${socket.id} and update id: ${updateId}`);
+      await handleAgencyLocationUpdate(socket, locationPayload, updateId);
+      console.log(`agency might updated: ${socket.id} and update id: ${updateId}`);
     });
 
     socket.on("disconnect", async () => {

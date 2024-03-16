@@ -60,7 +60,7 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
 }, THROTTLE_INTERVAL);
 
 // Throttle the agencyLocationUpdate event
-const handleAgencyLocationUpdate = _.throttle(async (socket, locationPayload) => {
+const handleAgencyLocationUpdate = _.throttle(async (socket, locationPayload, updateId) => {
   if (!socket.user.isAgency) {
     socket.emit("agencyLocationUpdate", {
       status: false,
@@ -112,6 +112,7 @@ const handleAgencyLocationUpdate = _.throttle(async (socket, locationPayload) =>
   if (userSocketIds.length > 0) {
     socket.broadcast.to(userSocketIds).emit("agencyLocationUpdate", responseData);
   }
+  console.log(`Processed update of : ${socket.id} and update id: ${updateId}`);
 }, THROTTLE_INTERVAL);
 
 const handleDisconnect = async (socket) => {
