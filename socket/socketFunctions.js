@@ -24,8 +24,8 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
       .filter((user) => user.socketId)
       .map((user) => {
         return {
-          lng: lastLocation.coordinates[0],
-          lat: lastLocation.coordinates[1],
+          lng: user.lastLocation.coordinates[0],
+          lat: user.lastLocation.coordinates[1],
           userId: user._id,
           userName: user.name,
           phoneNumber: user.phoneNumber,
@@ -43,8 +43,8 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
     .filter((agency) => agency.socketId)
     .map((agency) => {
       return {
-        lng: lastLocation.coordinates[0],
-        lat: lastLocation.coordinates[1],
+        lng: agency.lastLocation.coordinates[0],
+        lat: agency.lastLocation.coordinates[1],
         userId: agency._id,
         userName: agency.name,
         phoneNumber: agency.phone,
