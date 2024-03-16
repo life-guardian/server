@@ -23,7 +23,7 @@ router.delete("/agency/cancel/:eventId", auth, isAgency, cancelEvent);
 //public
 router.put("/register", auth, notAgency, registerForEvent);
 router.get("/registeredevents", auth, notAgency, showRegisteredEvents);
-router.get("/nearbyevents/:longitude/:latitude", auth, notAgency, upcomingNearbyEvents);
+router.get("/nearbyevents/:latitude/:longitude", auth, notAgency, upcomingNearbyEvents);
 router.get("/eventdetails/:eventId", auth, notAgency, eventDetails);
 
 module.exports = router;

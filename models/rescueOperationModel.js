@@ -34,6 +34,12 @@ const rescueOperationSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+
+    status: {
+      type: String,
+      enum: ["started", "stopped"],
+      default: "started"
+    }
   },
   {
     timestamps: true,

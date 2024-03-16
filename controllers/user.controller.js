@@ -2,7 +2,6 @@ const User = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const { updateUsersLastLocation } = require("../utils/userLocation.js");
 const { validationResult } = require("express-validator");
 
 const userRegister = async (req, res) => {
@@ -51,12 +50,12 @@ const userRegister = async (req, res) => {
     );
 
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "development" ? false : true,
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "development" ? false : true,
+    // });
 
-    res.status(200).json({ message: "Account created", token: token });
+    res.status(200).json({ message: "Account created", token: token, data: {name: user.name}});
   } catch (error) {
     console.error(`Error in Registration : ${error}`);
     res.status(500).json({ message: "Internal server error" });
@@ -105,12 +104,12 @@ const userLogin = async (req, res) => {
       // }
 
       
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "development" ? false : true,
-      });
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "development" ? false : true,
+      // });
 
-      return res.status(200).json({ message: "Login successfull", token: token });
+      return res.status(200).json({ message: "Login successfull", token: token, data: {name: user.name}});
     } else {
       return res.status(400).json({ message: "Incorrect password" });
     }
@@ -120,19 +119,7 @@ const userLogin = async (req, res) => {
   }
 };
 
-const userLogout = async (req, res) => {
-  try {
-    res.clearCookie("token", { httpOnly: true });
-
-    return res.status(200).json({ message: "Logged out" });
-  } catch (error) {
-    console.error(`Error in Logout : ${error}`);
-    return res.status(500).json({ message: "Logout failed" });
-  }
-};
-
 module.exports = {
   userRegister,
-  userLogin,
-  userLogout,
+  userLogin
 };

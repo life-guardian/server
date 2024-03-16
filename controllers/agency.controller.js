@@ -14,14 +14,7 @@ const agencyRegister = async (req, res) => {
   }
 
   try {
-    let {
-      agencyName,
-      agencyEmail,
-      agencyPhNo,
-      password,
-      address,
-      representativeName,
-    } = req.body;
+    let { agencyName, agencyEmail, agencyPhNo, password, address, representativeName } = req.body;
 
     const mobNum = Number(`91${agencyPhNo}`);
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,15 +38,12 @@ const agencyRegister = async (req, res) => {
       address,
     });
 
-    const token = jwt.sign(
-      { id: agency._id, isAgency: true },
-      process.env.JWT_SECRET_KEY
-    );
+    const token = jwt.sign({ id: agency._id, isAgency: true }, process.env.JWT_SECRET_KEY);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "development" ? false : true,
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "development" ? false : true,
+    // });
 
     return res.status(200).json({ message: "Agency registered", token: token });
   } catch (error) {
@@ -82,42 +72,25 @@ const agencyLogin = async (req, res) => {
       agency = await Agency.findOne({ phone: Number(`91${username}`) });
     }
 
-    if (!agency)
-      return res.status(404).json({ message: "Agency not registered" });
+    if (!agency) return res.status(404).json({ message: "Agency not registered" });
 
     const match = await bcrypt.compare(password, agency.password);
 
     if (match) {
-      const token = jwt.sign(
-        { id: agency._id, isAgency: true },
-        process.env.JWT_SECRET_KEY
-      );
+      const token = jwt.sign({ id: agency._id, isAgency: true }, process.env.JWT_SECRET_KEY);
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "development" ? false : true,
-      });
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "development" ? false : true,
+      // });
 
-      return res
-        .status(200)
-        .json({ message: "Login successfull", token: token });
+      return res.status(200).json({ message: "Login successfull", token: token });
     } else {
       return res.status(400).json({ message: "Incorrect password" });
     }
   } catch (error) {
     console.error(`Error in Login : ${error}`);
     return res.status(500).json({ message: "Login failed" });
-  }
-};
-
-const agencyLogout = async (req, res) => {
-  try {
-    res.clearCookie("token", { httpOnly: true });
-
-    return res.status(200).json({ message: "Logged out" });
-  } catch (error) {
-    console.error(`Error in Logout : ${error}`);
-    return res.status(500).json({ message: "Logout failed" });
   }
 };
 
@@ -135,8 +108,7 @@ const eventAndRescueOperationCount = async (req, res) => {
   } catch (error) {
     console.error(`Error in eventAndRescueOperationCount : ${error}`);
     return res.status(500).json({
-      message:
-        "Failed to fetch agencyName rescueOperationsCount and eventsCount",
+      message: "Failed to fetch agencyName rescueOperationsCount and eventsCount",
     });
   }
 };
@@ -144,6 +116,5 @@ const eventAndRescueOperationCount = async (req, res) => {
 module.exports = {
   agencyRegister,
   agencyLogin,
-  agencyLogout,
   eventAndRescueOperationCount,
 };

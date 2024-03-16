@@ -1,6 +1,6 @@
 # LifeGuardian Backend
 
-This repository contains the backend code for the LifeGuardian project.
+This repository contains the backend code of LifeGuardian project.
 
 ## Getting Started
 
@@ -38,6 +38,12 @@ Before starting the server, ensure that you have set up the    necessary configu
 By default, the server will run on port 5000. You can access it at http://localhost:5000.
 
 
+### Run as docker container
+
+Build the image using Dockerfile or pull the already built image from docker hub
+
+run container by pulling image from dockerhub:
+`docker run --name life-guardian-server -p 5000:5000 -e "Pass environment variables" -d pratikjpatil/life-guardian-backend:0.0.1`
 
 
 ## Contributing
