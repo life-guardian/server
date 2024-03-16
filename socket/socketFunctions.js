@@ -15,6 +15,49 @@ const handleOnConnection = async (socket) => {
   }
 };
 
+const handleOnInitialConnect = async (socket, locationPayload) => {
+  //if the socket user is agency then only send nearbyUsers. if not just send nearbyagencies
+  if (socket.user.isAgency) {
+    const nearbyUsers = await fetchNearest(User, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
+
+    const users = nearbyUsers
+      .filter((user) => user.socketId)
+      .map((user) => {
+        return {
+          lng: lastLocation.coordinates[0],
+          lat: lastLocation.coordinates[1],
+          userId: user._id,
+          userName: user.name,
+          phoneNumber: user.phoneNumber,
+        };
+      });
+    socket.emit("userLocationUpdate", users);
+  }
+
+  //if the socket user is agency or user send nearbyAgencies
+  const nearbyAgencies = await fetchNearest(Agency, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
+
+  const populatedAgencies = await Agency.populate(nearbyAgencies, { path: "onGoingRescueOperation" });
+
+  const agencies = populatedAgencies
+    .filter((agency) => agency.socketId)
+    .map((agency) => {
+      return {
+        lng: lastLocation.coordinates[0],
+        lat: lastLocation.coordinates[1],
+        userId: agency._id,
+        userName: agency.name,
+        phoneNumber: agency.phone,
+        representativeName: agency.representativeName,
+        rescueOpsName: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.name : null,
+        rescueOpsDescription: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.description : null,
+        rescueTeamSize: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.rescueTeamSize : null,
+      };
+    });
+
+  socket.emit("agencyLocationUpdate", agencies);
+};
+
 // Throttle the userLocationUpdate event
 const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
   if (socket.user.isAgency) {
@@ -45,6 +88,7 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
 
   const nearbyAgencies = await fetchNearest(Agency, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
 
+  //filtering agencies whose socketId is null. This means they have not joined socket connection for their location sharing
   const socketIds = nearbyAgencies.filter((agency) => agency.socketId).map((agency) => agency.socketId);
 
   const responseData = {
@@ -132,6 +176,7 @@ const handleDisconnect = async (socket) => {
 
 module.exports = {
   handleOnConnection,
+  handleOnInitialConnect,
   handleUserLocationUpdate,
   handleAgencyLocationUpdate,
   handleDisconnect,
