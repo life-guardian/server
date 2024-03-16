@@ -3,8 +3,9 @@ const mongoose = require("mongoose");
 const connectDB = async () => {
   mongoose.set("strictQuery", false);
 
-  const databaseName = process.env.NODE_ENV === "development" ? "lifeguardiandev" : "lifeguardian";
+  // const databaseName = process.env.NODE_ENV === "development" ? "lifeguardiandev" : "lifeguardian";
 
+  const databaseName = "lifeguardian";
   await mongoose
     .connect(process.env.MONGO_URI, { dbName: databaseName })
     .then((c) => {
