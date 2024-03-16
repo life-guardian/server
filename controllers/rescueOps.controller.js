@@ -22,7 +22,7 @@ const startRescueOps = async (req, res) => {
 
     await rescueOps.save();
 
-    await Agency.findByIdAndUpdate(req.user.id, { $set: { onGoingRescueOperation: rescueOps._id } });
+    await Agency.findByIdAndUpdate(req.user.id, { $set: { onGoingRescueOperation: rescueOps._id }});
 
     res.status(200).json({ message: "Rescue operation started", rescueOpsId: rescueOps._id });
   } catch (error) {
@@ -82,6 +82,7 @@ const isRescueOperationOnGoing = async (req, res) => {
 
   try {
     const agency = await Agency.findById(req.user.id);
+    console.log(agency)
     let response = {
         isRescueOperationOnGoing: false,
         rescueOpsId: null
