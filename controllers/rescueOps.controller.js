@@ -77,4 +77,27 @@ const deleteRescueOps = async (req, res) => {
   }
 };
 
-module.exports = { startRescueOps, deleteRescueOps, stopRescueOps };
+//agency
+const isRescueOperationOnGoing = async (req, res) => {
+
+  try {
+    const agency = await Agency.findById(req.user.id);
+    let response = {
+        isRescueOperationOnGoing: false,
+        rescueOpsId: null
+    };
+    if(agency.onGoingRescueOperation!==null){
+      response = {
+        isRescueOperationOnGoing: true,
+        rescueOpsId: agency.onGoingRescueOperation
+      }
+    }
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(`Error fetching onGoingRescueOperation status: ${error}`);
+    return res.status(500).json({ message: "Error fetching onGoingRescueOperation status" });
+  }
+};
+
+
+module.exports = { startRescueOps, deleteRescueOps, stopRescueOps, isRescueOperationOnGoing };
