@@ -56,7 +56,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
     });
 
   socket.emit("initialConnectReceiveNearbyAgencies", agencies);
-  console.log(`Initially connected user ${socket.id} and the data is ${JSON.stringify(agencies)}`);
+  console.log(`Initially connected user ${socket.id} and the data is ${JSON.stringify(agencies)}\n`);
 };
 
 // Throttle the userLocationUpdate event
