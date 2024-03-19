@@ -45,20 +45,19 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
       return {
         lng: agency.lastLocation.coordinates[0],
         lat: agency.lastLocation.coordinates[1],
-        userId: agency._id,
-        userName: agency.name,
-        phoneNumber: agency.phone,
-        representativeName: agency.representativeName,
-        rescueOpsName: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.name : null,
-        rescueOpsDescription: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.description : null,
-        rescueTeamSize: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.rescueTeamSize : null,
+        agencyId: socket.user.id,
+        agencyName: agencyData.name,
+        phoneNumber: agencyData.phone,
+        representativeName: agencyData.representativeName,
+        rescueOpsName: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.name : null,
+        rescueOpsDescription: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.description : null,
+        rescueTeamSize: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.rescueTeamSize : null,
       };
     });
 
   socket.emit("initialConnectReceiveNearbyAgencies", agencies);
   console.log(`Initially connected user ${socket.id} and the data is ${JSON.stringify(agencies)}`);
 };
-
 
 // Throttle the userLocationUpdate event
 const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
