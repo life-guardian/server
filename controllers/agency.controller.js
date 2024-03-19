@@ -9,7 +9,6 @@ const { validationResult } = require("express-validator");
 const agencyRegister = async (req, res) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    console.log(validationErrors);
     return res.status(403).json({ message: validationErrors.errors[0].msg });
   }
 
@@ -55,7 +54,6 @@ const agencyRegister = async (req, res) => {
 const agencyLogin = async (req, res) => {
   const validationErrors = validationResult(req);
   if (!validationErrors.isEmpty()) {
-    console.log(validationErrors);
     res.status(403).json({ message: validationErrors.errors[0].msg });
     return;
   }
