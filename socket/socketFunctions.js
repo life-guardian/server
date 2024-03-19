@@ -56,6 +56,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
     });
 
   socket.emit("initialConnectReceiveNearbyAgencies", agencies);
+  console.log(`Initially connected user ${socket.id} and the data is ${agencies}`);
 };
 
 // Throttle the userLocationUpdate event
@@ -156,7 +157,7 @@ const handleAgencyLocationUpdate = _.throttle(async (socket, locationPayload, up
   if (userSocketIds.length > 0) {
     socket.broadcast.to(userSocketIds).emit("agencyLocationUpdate", responseData);
   }
-  console.log(`Processed update of : ${socket.id} and update id: ${updateId}`);
+  console.log(`Processed update of : ${socket.id} and update id: ${updateId} agency name: ${agencyData.name}`);
 }, THROTTLE_INTERVAL);
 
 const handleDisconnect = async (socket) => {
