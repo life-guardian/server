@@ -16,12 +16,12 @@ const handleOnConnection = async (socket) => {
 };
 
 const handleOnInitialConnect = async (socket, locationPayload) => {
-  //if the socket user is agency then only send nearbyUsers. if not just send nearbyagencies
+  // Fetch nearby users if the socket user is an agency
   if (socket.user.isAgency) {
     const nearbyUsers = await fetchNearest(User, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
 
     const users = nearbyUsers
-      .filter((user) => user.socketId)
+      .filter((user) => user.socketId && user._id.toString() !== socket.user._id.toString()) // Filter out own user's data
       .map((user) => {
         return {
           lng: user.lastLocation.coordinates[0],
@@ -34,29 +34,29 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
     socket.emit("initialConnectReceiveNearbyUsers", users);
   }
 
-  //if the socket user is agency or user send nearbyAgencies
+  // Fetch nearby agencies
   const nearbyAgencies = await fetchNearest(Agency, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
 
   const populatedAgencies = await Agency.populate(nearbyAgencies, { path: "onGoingRescueOperation" });
 
   const agencies = populatedAgencies
-    .filter((agency) => agency.socketId)
+    .filter((agency) => agency.socketId && agency._id.toString() !== socket.user._id.toString()) // Filter out own user's data
     .map((agency) => {
       return {
         lng: agency.lastLocation.coordinates[0],
         lat: agency.lastLocation.coordinates[1],
-        userId: agency._id,
-        userName: agency.name,
-        phoneNumber: agency.phone,
-        representativeName: agency.representativeName,
-        rescueOpsName: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.name : null,
-        rescueOpsDescription: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.description : null,
-        rescueTeamSize: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.rescueTeamSize : null,
+        agencyId: socket.user.id,
+        agencyName: agencyData.name,
+        phoneNumber: agencyData.phone,
+        representativeName: agencyData.representativeName,
+        rescueOpsName: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.name : null,
+        rescueOpsDescription: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.description : null,
+        rescueTeamSize: agencyData.onGoingRescueOperation ? agencyData.onGoingRescueOperation.rescueTeamSize : null,
       };
     });
 
   socket.emit("initialConnectReceiveNearbyAgencies", agencies);
-  console.log(`Initially connected user ${socket.id} and the data is ${agencies}`);
+  console.log(`Initially connected user ${socket.id} and the data is ${JSON.stringify(agencies)}`);
 };
 
 // Throttle the userLocationUpdate event
