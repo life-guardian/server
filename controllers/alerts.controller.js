@@ -59,9 +59,9 @@ const sendAlert = async (req, res) => {
 
     if (userEmails.length > 0) {
       const isEmailSent = await sendMail(userEmails, subject, content);
-      if (isEmailSent) {
-        console.log("Emails sent successfull");
-      }
+      // if (isEmailSent) {
+      //   console.log("Emails sent successfull");
+      // }
       const smsText = `ALERT! Name- ${alertName} severity- ${alertSeverity} date- ${formattedAlertDate} alerting agency- ${agency.name}`;
       await sendSMS(userPhoneNumbers, smsText);
     }

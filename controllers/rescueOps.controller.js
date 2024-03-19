@@ -82,7 +82,6 @@ const isRescueOperationOnGoing = async (req, res) => {
 
   try {
     const agency = await Agency.findById(req.user.id);
-    console.log(agency)
     let response = {
         isRescueOperationOnGoing: false,
         rescueOpsId: null
