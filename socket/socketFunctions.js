@@ -168,8 +168,8 @@ const handleDisconnect = async (socket) => {
       await User.findOneAndUpdate({ _id: socket.user.id }, { $set: { socketId: null } });
     }
 
-    socket.broadcast.emit("disconnected", socket.id);
-    // console.log(`${socket.id} disconnected`);
+    socket.broadcast.emit("disconnect", socket.id);
+    console.log(`${socket.id} disconnected`);
   } catch (error) {
     console.error("Error handling disconnect:", error);
   }
