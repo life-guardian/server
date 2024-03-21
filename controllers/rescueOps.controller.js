@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Agency = require("../models/agencyModel.js");
+const User = require("../models/userModel.js");
 const Event = require("../models/eventModel.js");
 const ROperation = require("../models/rescueOperationModel.js");
 
@@ -22,7 +23,7 @@ const startRescueOps = async (req, res) => {
 
     await rescueOps.save();
 
-    await Agency.findByIdAndUpdate(req.user.id, { $set: { onGoingRescueOperation: rescueOps._id }});
+    await Agency.findByIdAndUpdate(req.user.id, { $set: { onGoingRescueOperation: rescueOps._id } });
 
     res.status(200).json({ message: "Rescue operation started", rescueOpsId: rescueOps._id });
   } catch (error) {
@@ -79,18 +80,17 @@ const deleteRescueOps = async (req, res) => {
 
 //agency
 const isRescueOperationOnGoing = async (req, res) => {
-
   try {
     const agency = await Agency.findById(req.user.id);
     let response = {
-        isRescueOperationOnGoing: false,
-        rescueOpsId: null
+      isRescueOperationOnGoing: false,
+      rescueOpsId: null,
     };
-    if(agency.onGoingRescueOperation!==null){
+    if (agency.onGoingRescueOperation !== null) {
       response = {
         isRescueOperationOnGoing: true,
-        rescueOpsId: agency.onGoingRescueOperation
-      }
+        rescueOpsId: agency.onGoingRescueOperation,
+      };
     }
     res.status(200).json(response);
   } catch (error) {
@@ -99,5 +99,54 @@ const isRescueOperationOnGoing = async (req, res) => {
   }
 };
 
+const agencyOnInitialConnect = async (req, res) => {
+  const { lat, lng } = req.params;
+  try {
+    // Fetch nearby users if the user is an agency
+    let users = [];
+    if (req.user.isAgency) {
+      const nearbyUsers = await fetchNearest(User, [parseFloat(lng), parseFloat(lat)]);
 
-module.exports = { startRescueOps, deleteRescueOps, stopRescueOps, isRescueOperationOnGoing };
+      users = nearbyUsers
+        .filter((user) => user.socketId && user._id.toString() !== req.user.id.toString()) // Filter out own user's data
+        .map((user) => {
+          return {
+            lng: user.lastLocation.coordinates[0],
+            lat: user.lastLocation.coordinates[1],
+            userId: user._id,
+            userName: user.name,
+            phoneNumber: user.phoneNumber,
+          };
+        });
+    }
+
+    // Fetch nearby agencies
+    const nearbyAgencies = await fetchNearest(Agency, [parseFloat(lng), parseFloat(lat)]);
+
+    const populatedAgencies = await Agency.populate(nearbyAgencies, { path: "onGoingRescueOperation" });
+
+    const agencies = populatedAgencies
+      .filter((agency) => agency.socketId && agency._id.toString() !== req.user.id.toString()) // Filter out own user's data
+      .map((agency) => {
+        return {
+          lng: agency.lastLocation.coordinates[0],
+          lat: agency.lastLocation.coordinates[1],
+          agencyId: agency._id,
+          agencyName: agency.name,
+          phoneNumber: agency.phone,
+          representativeName: agency.representativeName,
+          rescueOpsName: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.name : null,
+          rescueOpsDescription: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.description : null,
+          rescueTeamSize: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.rescueTeamSize : null,
+        };
+      });
+    console.log(`Initially connected user ${req.user.id} and the data is ${JSON.stringify(agencies)}\n`);
+
+    return res.status(200).json({ agencies, users });
+  } catch (error) {
+    console.error(`Error agencyOnInitialConnect: ${error}`);
+    return res.status(500).json({ message: "Error agencyOnInitialConnect" });
+  }
+};
+
+module.exports = { startRescueOps, deleteRescueOps, stopRescueOps, isRescueOperationOnGoing, agencyOnInitialConnect };
