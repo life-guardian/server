@@ -3,7 +3,7 @@ const Agency = require("../models/agencyModel.js");
 const User = require("../models/userModel.js");
 const Event = require("../models/eventModel.js");
 const ROperation = require("../models/rescueOperationModel.js");
-
+const { fetchNearest } = require("../utils/location");
 //agency
 const startRescueOps = async (req, res) => {
   const { name, description, latitude, longitude, rescueTeamSize } = req.body;
