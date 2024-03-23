@@ -149,4 +149,15 @@ const agencyOnInitialConnect = async (req, res) => {
   }
 };
 
+const rescueMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({});
+  } catch (error) {
+    console.error(`Error fetching onGoingRescueOperation status: ${error}`);
+    return res.status(500).json({ message: "Error fetching onGoingRescueOperation status" });
+  }
+};
+
 module.exports = { startRescueOps, deleteRescueOps, stopRescueOps, isRescueOperationOnGoing, agencyOnInitialConnect };

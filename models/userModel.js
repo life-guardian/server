@@ -32,16 +32,16 @@ const userSchema = new mongoose.Schema(
     lastLocation: {
       type: {
         type: String,
-        enum: ["Point"]
+        enum: ["Point"],
       },
       coordinates: {
-        type: [Number]
+        type: [Number],
       },
     },
 
     lastLocationUpdatedAt: {
       type: Date,
-      default: null
+      default: null,
     },
 
     receivedAlerts: {
@@ -56,9 +56,18 @@ const userSchema = new mongoose.Schema(
 
     socketId: {
       type: String,
-      default: null
-    }
+      default: null,
+    },
 
+    rescue: {
+      isInDanger: {
+        type: Boolean,
+        default: null,
+      },
+      reason: {
+        type: String,
+      },
+    },
   },
   {
     timestamps: true,
