@@ -7,7 +7,7 @@ const { fetchNearest } = require("../utils/location");
 const THROTTLE_INTERVAL = 2000; //2s
 
 const handleOnConnection = async (socket) => {
-  // console.log("User connected: " + socket.id);
+  console.log("User connected: " + socket.id);
   if (socket.user.isAgency) {
     await Agency.findOneAndUpdate({ _id: socket.user.id }, { $set: { socketId: socket.id } });
   } else {
