@@ -33,6 +33,7 @@ const userLocationRoutes = require("./routes/userLocationRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const findAgencyRoutes = require("./routes/findAgencyRoutes");
 const rescueOpsRoutes = require("./routes/rescueOpsRoutes");
+const userRescueRoutes = require("./routes/userRescueRoutes");
 
 app.use("/api/user", userRoutes); //register, login routes for user
 app.use("/api/agency", agencyRoutes); //register , login routes for agency
