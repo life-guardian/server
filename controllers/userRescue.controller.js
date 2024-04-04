@@ -17,8 +17,8 @@ const rescueMe = async (req, res) => {
 //first check before connecting calling rescueMe api if the user is already indanger and if his app was closed and now he has reopened it then check if the rescueMealreadystarted and if not then call the rescueMe api and connect to socket else directly connectToSocket
 const isAlreadyRescueMeStarted = async (req, res) => {
   try {
-    const user = await User.findbyId(req.user.id);
-    return res.status(200).json({ userAlreadyInDanger: user.rescue.isInDanger });
+    const user = await User.findById(req.user.id);
+    return res.status(200).json({ isAlreadyRescueMeStarted: user.rescue.isInDanger });
   } catch (error) {
     console.error(`Error fetching isAlreadyRescueMeStarted: ${error}`);
     return res.status(500).json({ message: "Error fetching isAlreadyRescueMeStarted" });
