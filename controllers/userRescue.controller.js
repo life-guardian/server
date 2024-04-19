@@ -1,12 +1,23 @@
 const mongoose = require("mongoose");
-const User = require("../models/userModel.js");
+const User = require("../models/userModel");
+const Agency = require("../models/agencyModel");
+const ROperation = require("../models/rescueOperationModel");
+const { fetchNearest } = require("../utils/location");
+const sendMail = require("../utils/sendEmail.js");
 
 const rescueMe = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.user.id, {
+    const user = await User.findByIdAndUpdate(req.user.id, {
       $set: { "rescue.isInDanger": true, "rescue.reason": req.body.rescueReason },
     });
-
+    const nearbyAgencies = await fetchNearest(Agency, [parseFloat(req.body.lng), parseFloat(req.body.lat)]);
+    if (nearbyAgencies.length === 0) {
+      await sendMail(
+        "pratik8560@gmail.com",
+        "USER IS IN DANGER!!!",
+        `The user ${user.name} is in DANGER. UserInfo\n Phone Number: ${user.phoneNumber}\nPermanent Address: ${user.address}\nLast Location: ${user.lastLocation}\nLast Location UpdatedAt: ${user.lastLocationUpdatedAt}\nRescue reason: ${user.rescue.reason}. There isn't any agency around him to rescue. \n\nSEND EMERGENCY RESPONSE TEAM IMMIDIATELY.\n\nUser Location\n lattitude: ${req.body.lat} longitude: ${req.body.lng}`
+      );
+    }
     res.status(200).json({ message: "Rescue me!" });
   } catch (error) {
     console.error(`Error changing rescueme status: ${error}`);
