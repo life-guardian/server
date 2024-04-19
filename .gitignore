@@ -11,7 +11,6 @@
 # production
 /build
 
-config/push-notification-key.json
 /config/push-notification-key.json
 .env
 .DS_Store
