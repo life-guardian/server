@@ -14,7 +14,7 @@ const sendAlert = async (req, res) => {
 
   try {
     // locationCoordinates is an array field with Longitude and latitude
-    const { locationCoordinates, alertName, alertSeverity, alertForDate } = req.body;
+    const { locationCoordinates, alertName, alertSeverity, alertForDate, alertDescription } = req.body;
 
     const response = await usersInRangeOfLocation(locationCoordinates, 20);
     const nearbyUsers = response.data;
@@ -35,6 +35,7 @@ const sendAlert = async (req, res) => {
       alertForDate,
       alertLocation,
       agencyId: req.user.id,
+      alertDescription,
       receivers: userIDs,
     });
 
@@ -54,6 +55,7 @@ const sendAlert = async (req, res) => {
     <b><strong style="color: #333333;">Alert Severity:</strong> ${alertSeverity}</b><br>
     <b><strong style="color: #333333;">Alert Date:</strong> ${formattedAlertDate}</b><br>
     <b><strong style="color: #333333;">Alerting agency:</strong> ${agency.name}</b><br>
+    <b><strong style="color: #333333;">Alert Description:</strong> ${alertDescription}</b><br>
     <p>Stay safe!</p>
     `;
 
@@ -90,6 +92,7 @@ const showReceivedAlerts = async (req, res) => {
         path: "agencyId",
         model: "Agency",
       },
+      options: { sort: { alertForDate: 1 } }, // Sort receivedAlerts by alertForDate in ascending order
     });
 
     if (!user) {
@@ -97,14 +100,16 @@ const showReceivedAlerts = async (req, res) => {
     }
 
     const response = user.receivedAlerts.map((alert) => ({
+      alertId: alert._id,
       alertName: alert.alertName,
       alertLocation: alert.alertLocation.coordinates,
       alertForDate: alert.alertForDate,
       alertSeverity: alert.alertSeverity,
       agencyName: alert.agencyId.name,
+      alertDescription: alert.alertDescription,
     }));
 
-    return res.status(200).json(response.reverse());
+    return res.status(200).json(response);
   } catch (error) {
     console.error(`Error in fetching received alerts: ${error}`);
     return res.status(500).json({ message: "Error in fetching received alerts" });
@@ -136,8 +141,38 @@ const deleteAlert = async (req, res) => {
   }
 };
 
+const searchAlert = async (req, res) => {
+  let query = {};
+  const searchText = req.body.searchText.trim();
+  if (searchText) {
+    query = {
+      $or: [{ alertName: { $regex: searchText, $options: "i" } }],
+    };
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 30;
+  const skip = (page - 1) * limit;
+
+  try {
+    const count = await Alert.countDocuments(query);
+    const totalPages = Math.ceil(count / limit);
+
+    const alerts = await Alert.find(query)
+      .select("_id alertName alertLocation alertForDate alertSeverity agencyName alertDescription")
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({ totalPages, currentPage: page, alerts });
+  } catch (error) {
+    console.error(`Error finding agency: ${error}`);
+    return res.status(500).json({ message: "Error finding agency" });
+  }
+};
+
 module.exports = {
   sendAlert,
   showReceivedAlerts,
   deleteAlert,
+  searchAlert,
 };

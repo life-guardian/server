@@ -165,7 +165,11 @@ const registerForEvent = async (req, res) => {
 //user
 const showRegisteredEvents = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("registeredEvents");
+    const user = await User.findById(req.user.id).populate({
+      path: "registeredEvents",
+      options: { sort: { eventDate: 1 } }, // Sort registeredEvents by eventDate in ascending order
+    });
+
     const response = user.registeredEvents.map((event) => ({
       eventId: event._id,
       eventName: event.eventName,
@@ -173,7 +177,7 @@ const showRegisteredEvents = async (req, res) => {
       eventDate: event.eventDate,
     }));
 
-    res.status(200).json(response.reverse());
+    res.status(200).json(response);
   } catch (error) {
     handleServerError(res, error, "Error in fetching registered events");
   }
@@ -197,7 +201,7 @@ const upcomingNearbyEvents = async (req, res) => {
       eventDate: { $gte: currentDate },
     };
 
-    const events = await Event.find(options).populate("agencyId");
+    const events = await Event.find(options).populate("agencyId").sort({ eventDate: 1 }); // Sort by eventDate in ascending order
 
     const response = events.map((event) => ({
       eventId: event._id,
@@ -206,7 +210,7 @@ const upcomingNearbyEvents = async (req, res) => {
       eventDate: event.eventDate,
     }));
 
-    res.status(200).json(response.reverse());
+    res.status(200).json(response);
   } catch (error) {
     handleServerError(res, error, "Error in finding upcoming Nearby Events");
   }
@@ -233,6 +237,39 @@ const eventDetails = async (req, res) => {
   }
 };
 
+const searchEvent = async (req, res) => {
+  let query = {};
+  const searchText = req.body.searchText.trim();
+  if (searchText) {
+    query = {
+      $or: [{ eventName: { $regex: searchText, $options: "i" } }],
+    };
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 30;
+  const skip = (page - 1) * limit;
+
+  try {
+    const count = await Event.countDocuments(query);
+    const totalPages = Math.ceil(count / limit);
+
+    const result = await Event.find(query).populate("agencyId").skip(skip).limit(limit);
+
+    const events = result.map((event) => ({
+      eventId: event._id,
+      eventName: event.eventName,
+      agencyName: event.agencyId.name,
+      eventDate: event.eventDate,
+    }));
+
+    res.status(200).json({ totalPages, currentPage: page, events });
+  } catch (error) {
+    console.error(`Error finding agency: ${error}`);
+    return res.status(500).json({ message: "Error finding agency" });
+  }
+};
+
 module.exports = {
   agencyAddEvent,
   registerForEvent,
@@ -242,4 +279,5 @@ module.exports = {
   showRegisteredEvents,
   upcomingNearbyEvents,
   eventDetails,
+  searchEvent,
 };

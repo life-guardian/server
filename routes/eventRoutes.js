@@ -10,7 +10,8 @@ const {
   cancelEvent,
   showRegisteredEvents,
   upcomingNearbyEvents,
-  eventDetails
+  eventDetails,
+  searchEvent,
 } = require("../controllers/event.controller");
 
 //Agency specific
@@ -25,5 +26,7 @@ router.put("/register", auth, notAgency, registerForEvent);
 router.get("/registeredevents", auth, notAgency, showRegisteredEvents);
 router.get("/nearbyevents/:latitude/:longitude", auth, notAgency, upcomingNearbyEvents);
 router.get("/eventdetails/:eventId", auth, notAgency, eventDetails);
+
+router.get("/search", auth, searchEvent);
 
 module.exports = router;
