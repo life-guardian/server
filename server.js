@@ -33,6 +33,7 @@ const userLocationRoutes = require("./routes/userLocationRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const findAgencyRoutes = require("./routes/findAgencyRoutes");
 const rescueOpsRoutes = require("./routes/rescueOpsRoutes");
+const userRescueRoutes = require("./routes/userRescueRoutes");
 
 app.use("/api/user", userRoutes); //register, login routes for user
 app.use("/api/agency", agencyRoutes); //register , login routes for agency
@@ -42,6 +43,7 @@ app.use("/api/userlocation", userLocationRoutes); //routes related to users loca
 app.use("/api/history", historyRoutes); //all history page routes
 app.use("/api/search", findAgencyRoutes); //search agencies by agency name or representative name & view details
 app.use("/api/rescueops", rescueOpsRoutes); //start rescue operation
+app.use("/api/userrescue", userRescueRoutes); //user rescue routes - rescueme, checkalreadyrescueme, stoprescueme
 
 app.get("/", (req, res) => {
   res.send(`

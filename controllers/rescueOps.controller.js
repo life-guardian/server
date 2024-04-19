@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const Agency = require("../models/agencyModel.js");
+const User = require("../models/userModel.js");
 const Event = require("../models/eventModel.js");
 const ROperation = require("../models/rescueOperationModel.js");
-
+const { fetchNearest } = require("../utils/location");
 //agency
 const startRescueOps = async (req, res) => {
   const { name, description, latitude, longitude, rescueTeamSize } = req.body;
@@ -77,4 +78,122 @@ const deleteRescueOps = async (req, res) => {
   }
 };
 
-module.exports = { startRescueOps, deleteRescueOps, stopRescueOps };
+//agency
+const isRescueOperationOnGoing = async (req, res) => {
+  try {
+    const agency = await Agency.findById(req.user.id);
+    let response = {
+      isRescueOperationOnGoing: false,
+      rescueOpsId: null,
+    };
+    if (agency.onGoingRescueOperation !== null) {
+      response = {
+        isRescueOperationOnGoing: true,
+        rescueOpsId: agency.onGoingRescueOperation,
+      };
+    }
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(`Error fetching onGoingRescueOperation status: ${error}`);
+    return res.status(500).json({ message: "Error fetching onGoingRescueOperation status" });
+  }
+};
+
+const agencyOnInitialConnect = async (req, res) => {
+  const { lat, lng } = req.params;
+  try {
+    // Fetch nearby users if the user is an agency
+    let users = [];
+    if (req.user.isAgency) {
+      const nearbyUsers = await fetchNearest(User, [parseFloat(lng), parseFloat(lat)]);
+
+      users = nearbyUsers
+        .filter((user) => user.socketId && user._id.toString() !== req.user.id.toString()) // Filter out own user's data
+        .map((user) => {
+          return {
+            lng: user.lastLocation.coordinates[0],
+            lat: user.lastLocation.coordinates[1],
+            userId: user._id,
+            userName: user.name,
+            phoneNumber: user.phoneNumber,
+          };
+        });
+    }
+
+    // Fetch nearby agencies
+    const nearbyAgencies = await fetchNearest(Agency, [parseFloat(lng), parseFloat(lat)]);
+
+    const populatedAgencies = await Agency.populate(nearbyAgencies, { path: "onGoingRescueOperation" });
+
+    const agencies = populatedAgencies
+      .filter((agency) => agency.socketId && agency._id.toString() !== req.user.id.toString()) // Filter out own user's data
+      .map((agency) => {
+        return {
+          lng: agency.lastLocation.coordinates[0],
+          lat: agency.lastLocation.coordinates[1],
+          agencyId: agency._id,
+          agencyName: agency.name,
+          phoneNumber: agency.phone,
+          representativeName: agency.representativeName,
+          rescueOpsName: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.name : null,
+          rescueOpsDescription: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.description : null,
+          rescueTeamSize: agency.onGoingRescueOperation ? agency.onGoingRescueOperation.rescueTeamSize : null,
+        };
+      });
+    console.log(`Initially connected user ${req.user.id} and the data is ${JSON.stringify(agencies)}\n`);
+
+    return res.status(200).json({ agencies, users });
+  } catch (error) {
+    console.error(`Error agencyOnInitialConnect: ${error}`);
+    return res.status(500).json({ message: "Error agencyOnInitialConnect" });
+  }
+};
+
+const rescueMe = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, {
+      $set: { "rescue.isInDanger": true, "rescue.reason": req.body.rescueReason },
+    });
+
+    res.status(200).json({ message: "Rescue me!" });
+  } catch (error) {
+    console.error(`Error changing rescueme status: ${error}`);
+    return res.status(500).json({ message: "Error changing rescueme status" });
+  }
+};
+
+//first check before connecting calling rescueMe api if the user is already indanger and if his app was closed and now he has reopened it then check if the rescueMealreadystarted and if not then call the rescueMe api and connect to socket else directly connectToSocket
+const isAlreadyRescueMeStarted = async (req, res) => {
+  try {
+    const user = await User.findbyId(req.user.id);
+    return res.status(200).json({ userAlreadyInDanger: user.rescue.isInDanger });
+  } catch (error) {
+    console.error(`Error fetching isAlreadyRescueMeStarted: ${error}`);
+    return res.status(500).json({ message: "Error fetching isAlreadyRescueMeStarted" });
+  }
+};
+
+//stop after rescueMe
+const stopUserRescue = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, {
+      $set: { "rescue.isInDanger": false, "rescue.reason": null },
+    });
+
+    res.status(200).json({ message: "Stopped user rescue" });
+  } catch (error) {
+    console.error(`Error changing stop rescueme status: ${error}`);
+    return res.status(500).json({ message: "Error changing stop rescueme status" });
+  }
+};
+
+module.exports = {
+  startRescueOps,
+  deleteRescueOps,
+  stopRescueOps,
+  isRescueOperationOnGoing,
+  agencyOnInitialConnect,
+  rescueMe,
+  stopUserRescue,
+  isAlreadyRescueMeStarted,
+};
