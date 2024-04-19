@@ -61,7 +61,7 @@ const showEventsList = async (req, res) => {
       eventDate: event.eventDate,
     }));
 
-    res.status(200).json(events);
+    res.status(200).json(events.reverse());
   } catch (error) {
     handleServerError(res, error, "Error in showing events list");
   }
@@ -89,7 +89,7 @@ const showRegistrations = async (req, res) => {
       phoneNumber: user.phoneNumber,
     }));
 
-    res.status(200).json(registrations);
+    res.status(200).json(registrations.reverse());
   } catch (error) {
     handleServerError(res, error, "Error in showing registrations");
   }
@@ -168,7 +168,7 @@ const showRegisteredEvents = async (req, res) => {
       eventDate: event.eventDate,
     }));
 
-    res.status(200).json(response);
+    res.status(200).json(response.reverse());
   } catch (error) {
     handleServerError(res, error, "Error in fetching registered events");
   }
@@ -198,7 +198,7 @@ const upcomingNearbyEvents = async (req, res) => {
       eventDate: event.eventDate,
     }));
 
-    res.status(200).json(response);
+    res.status(200).json(response.reverse());
   } catch (error) {
     handleServerError(res, error, "Error in finding upcoming Nearby Events");
   }

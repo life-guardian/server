@@ -104,7 +104,7 @@ const showReceivedAlerts = async (req, res) => {
       agencyName: alert.agencyId.name,
     }));
 
-    return res.status(200).json(response);
+    return res.status(200).json(response.reverse());
   } catch (error) {
     console.error(`Error in fetching received alerts: ${error}`);
     return res.status(500).json({ message: "Error in fetching received alerts" });

@@ -6,12 +6,10 @@ const Alert = require("../models/alertModel");
 const fetchHistory = async (Model, req, res, modelName) => {
   try {
     const data = await Model.find({ agencyId: req.user.id });
-    res.status(200).json(data);
+    res.status(200).json(data.reverse());
   } catch (error) {
     console.error(`Error fetching ${modelName} history: ${error}`);
-    return res
-      .status(500)
-      .json({ message: `Error fetching ${modelName} history` });
+    return res.status(500).json({ message: `Error fetching ${modelName} history` });
   }
 };
 
