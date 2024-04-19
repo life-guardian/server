@@ -11,10 +11,7 @@ const usersInRangeOfLocation = async (locationCoordinates, rangeInKm) => {
       lastLocation: {
         $geoWithin: {
           $centerSphere: [
-            [
-              parseFloat(locationCoordinates[0]),
-              parseFloat(locationCoordinates[1]),
-            ],
+            [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
             radiusInMiles / 3963.2,
           ], //dividing by 3963.2 to convert the distance from miles to radians
         },
@@ -41,10 +38,7 @@ const updateUsersLastLocation = async (userId, newCoordinates) => {
     //longitude first and lattitude second
     user.lastLocation = {
       type: "Point",
-      coordinates: [
-        parseFloat(newCoordinates[0]),
-        parseFloat(newCoordinates[1]),
-      ],
+      coordinates: [parseFloat(newCoordinates[0]), parseFloat(newCoordinates[1])],
     };
     user.lastLocationUpdatedAt = new Date();
 
@@ -56,13 +50,8 @@ const updateUsersLastLocation = async (userId, newCoordinates) => {
   }
 };
 
-
 //check if there is any alert already issued for the area where user is in
-const checkAndUpdateExistingAlert = async (
-  locationCoordinates,
-  rangeInKm,
-  userId
-) => {
+const checkAndUpdateExistingAlert = async (locationCoordinates, rangeInKm, userId) => {
   try {
     // Converting kilometers to miles, as the query accepts distance in miles
     const radiusInMiles = rangeInKm / 1.60934;
@@ -75,36 +64,33 @@ const checkAndUpdateExistingAlert = async (
 
     const alreadyReceivedAlerts = user.receivedAlerts;
 
+    const currentDate = new Date();
+
     const options = {
       _id: { $nin: alreadyReceivedAlerts }, // Exclude alerts which are already present in alreadyReceivedAlerts
       alertLocation: {
         $geoWithin: {
           $centerSphere: [
-            [
-              parseFloat(locationCoordinates[0]),
-              parseFloat(locationCoordinates[1]),
-            ],
+            [parseFloat(locationCoordinates[0]), parseFloat(locationCoordinates[1])],
             radiusInMiles / 3963.2,
           ],
         },
       },
+      alertForDate: { $gte: currentDate },
     };
 
-    // Find alerts within the specified area, excluding those already received
+    // Find alerts within the specified area, excluding those already received and where alertForDate is not passed
     const alerts = await Alert.find(options);
 
-    user.receivedAlerts.push(...alerts.map(alert => alert._id));
+    user.receivedAlerts.push(...alerts.map((alert) => alert._id));
     await user.save();
 
     return { success: true };
   } catch (error) {
-    console.log(
-      "Error in updating alerts for the user's last updated location: " + error
-    );
+    console.log("Error in updating alerts for the user's last updated location: " + error);
     return { success: false };
   }
 };
-
 
 const fetchNearest = async (Model, coordinates) => {
   const MAX_DISTANCE = 10; //km

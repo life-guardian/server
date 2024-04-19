@@ -45,7 +45,7 @@ const agencyAddEvent = async (req, res) => {
 };
 
 //agency
-
+//show events which are added by this agency
 const showEventsList = async (req, res) => {
   try {
     const found = await Event.find({ agencyId: req.user.id });
@@ -133,10 +133,15 @@ const registerForEvent = async (req, res) => {
   const { eventId } = req.body;
 
   try {
-    // Check if the event exists in the database
     const foundEvent = await Event.findById(eventId);
     if (!foundEvent) {
       return res.status(400).json({ message: "Event you are trying to register does not exist" });
+    }
+
+    // Check if the event date has passed
+    const currentDate = new Date();
+    if (foundEvent.eventDate < currentDate) {
+      return res.status(400).json({ message: "The event has already passed. You cannot register for it." });
     }
 
     // Check if the loggedIn user is already registered for the event
@@ -181,12 +186,15 @@ const upcomingNearbyEvents = async (req, res) => {
     // Convert kilometers to miles as the query accepts distance in miles
     const radiusInMiles = 20 / 1.60934;
 
+    const currentDate = new Date();
+
     const options = {
       location: {
         $geoWithin: {
           $centerSphere: [[parseFloat(longitude), parseFloat(latitude)], radiusInMiles / 3963.2],
         },
       },
+      eventDate: { $gte: currentDate },
     };
 
     const events = await Event.find(options).populate("agencyId");
