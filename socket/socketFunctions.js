@@ -122,7 +122,8 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
     };
 
     if (agencySocketIds.length > 0) {
-      socket.broadcast.to(agencySocketIds).emit("userLocationUpdate", currentUserData);
+      if (!socket.user.isAgency && user.rescue.isInDanger)
+        socket.broadcast.to(agencySocketIds).emit("userLocationUpdate", currentUserData);
     }
     console.log(`\nInitially connected user ${socket.id} and the data is \n${JSON.stringify(agencies)}\n`);
   }
@@ -137,6 +138,7 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
     });
     return;
   }
+
   const userLocation = {
     type: "Point",
     coordinates: [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)],
@@ -152,6 +154,14 @@ const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
     socket.emit("userLocationUpdate", {
       status: false,
       message: "User not found",
+    });
+    return;
+  }
+
+  if (user.rescue.isInDanger) {
+    socket.emit("userLocationUpdate", {
+      status: false,
+      message: "User not in danger",
     });
     return;
   }
