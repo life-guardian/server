@@ -238,8 +238,8 @@ const eventDetails = async (req, res) => {
 };
 
 const searchEvent = async (req, res) => {
-  const searchText = req.body.searchText.trim();
-  const { lng, lat } = req.body;
+  const searchText = req.query.searchText.trim();
+  const { lng, lat } = req.query;
   const rangeInKm = 20;
   const radiusInMiles = rangeInKm / 1.60934;
   const currentDate = new Date();

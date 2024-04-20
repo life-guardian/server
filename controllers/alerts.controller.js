@@ -147,8 +147,8 @@ const searchAlert = async (req, res) => {
 
   const currentDate = new Date();
 
-  const searchText = req.body.searchText.trim() || "";
-  const { lat, lng } = req.body;
+  const searchText = req.query.searchText.trim() || "";
+  const { lat, lng } = req.query;
 
   if (!searchText && !lat && !lng) {
     return res.status(400).json({ message: "Search query is empty!!" });
@@ -178,10 +178,17 @@ const searchAlert = async (req, res) => {
     const count = await Alert.countDocuments(options);
     const totalPages = Math.ceil(count / limit);
 
-    const alerts = await Alert.find(options)
-      .select("_id alertName alertLocation alertForDate alertSeverity agencyName alertDescription")
-      .skip(skip)
-      .limit(limit);
+    const result = await Alert.find(options).skip(skip).limit(limit);
+
+    const alerts = result.map((alert) => ({
+      alertId: alert._id,
+      alertName: alert.alertName,
+      alertLocation: alert.alertLocation.coordinates,
+      alertForDate: alert.alertForDate,
+      alertSeverity: alert.alertSeverity,
+      agencyName: alert.agencyId.name,
+      alertDescription: alert.alertDescription,
+    }));
 
     res.status(200).json({ totalPages, currentPage: page, alerts });
   } catch (error) {
