@@ -60,10 +60,6 @@ app.get("/health", (req, res) => {
   res.status(200).json({ message: "status is OK😊!" });
 });
 
-app.get("/health", (req, res) => {
-  res.status(200).json({ message: "status is OK😊!" });
-});
-
 app.get("/*", (req, res) => {
   res.send(`
   <div style="text-align: center; margin-top: 15%; font-family: monospace;">
