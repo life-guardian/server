@@ -242,14 +242,19 @@ const searchEvent = async (req, res) => {
   const { lng, lat } = req.body;
   const rangeInKm = 20;
   const radiusInMiles = rangeInKm / 1.60934;
-  const options = {
-    alertLocation: {
+  const options = {};
+
+  if (searchText) {
+    options.eventName = { $regex: searchText, $options: "i" };
+  }
+
+  if (lng && lat) {
+    options.alertLocation = {
       $geoWithin: {
         $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
       },
-    },
-    eventName: { $regex: searchText, $options: "i" },
-  };
+    };
+  }
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 30;

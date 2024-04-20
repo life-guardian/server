@@ -147,21 +147,22 @@ const searchAlert = async (req, res) => {
 
   const currentDate = new Date();
 
-  // Find alerts within the specified area, excluding those already received and where alertForDate is not passed
-  // const alerts = await Alert.find(options);
-
   const searchText = req.body.searchText.trim() || "";
   const { lat, lng } = req.body;
 
-  const options = {
-    alertLocation: {
+  const options = {};
+
+  if (searchText) {
+    options.alertName = { $regex: searchText, $options: "i" };
+  }
+
+  if (lng && lat) {
+    options.alertLocation = {
       $geoWithin: {
         $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
       },
-    },
-    alertForDate: { $gte: currentDate },
-    alertName: { $regex: searchText, $options: "i" }, // Add search by name
-  };
+    };
+  }
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 30;
