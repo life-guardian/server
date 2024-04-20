@@ -238,23 +238,28 @@ const eventDetails = async (req, res) => {
 };
 
 const searchEvent = async (req, res) => {
-  let query = {};
   const searchText = req.body.searchText.trim();
-  if (searchText) {
-    query = {
-      $or: [{ eventName: { $regex: searchText, $options: "i" } }],
-    };
-  }
+  const { lng, lat } = req.body;
+  const rangeInKm = 20;
+  const radiusInMiles = rangeInKm / 1.60934;
+  const options = {
+    alertLocation: {
+      $geoWithin: {
+        $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
+      },
+    },
+    eventName: { $regex: searchText, $options: "i" },
+  };
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 30;
   const skip = (page - 1) * limit;
 
   try {
-    const count = await Event.countDocuments(query);
+    const count = await Event.countDocuments(options);
     const totalPages = Math.ceil(count / limit);
 
-    const result = await Event.find(query).populate("agencyId").skip(skip).limit(limit);
+    const result = await Event.find(options).populate("agencyId").skip(skip).limit(limit);
 
     const events = result.map((event) => ({
       eventId: event._id,

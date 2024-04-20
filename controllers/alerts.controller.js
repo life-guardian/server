@@ -142,23 +142,36 @@ const deleteAlert = async (req, res) => {
 };
 
 const searchAlert = async (req, res) => {
-  let query = {};
-  const searchText = req.body.searchText.trim();
-  if (searchText) {
-    query = {
-      $or: [{ alertName: { $regex: searchText, $options: "i" } }],
-    };
-  }
+  const rangeInKm = 20;
+  const radiusInMiles = rangeInKm / 1.60934;
+
+  const currentDate = new Date();
+
+  // Find alerts within the specified area, excluding those already received and where alertForDate is not passed
+  // const alerts = await Alert.find(options);
+
+  const searchText = req.body.searchText.trim() || "";
+  const { lat, lng } = req.body;
+
+  const options = {
+    alertLocation: {
+      $geoWithin: {
+        $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
+      },
+    },
+    alertForDate: { $gte: currentDate },
+    alertName: { $regex: searchText, $options: "i" }, // Add search by name
+  };
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 30;
   const skip = (page - 1) * limit;
 
   try {
-    const count = await Alert.countDocuments(query);
+    const count = await Alert.countDocuments(options);
     const totalPages = Math.ceil(count / limit);
 
-    const alerts = await Alert.find(query)
+    const alerts = await Alert.find(options)
       .select("_id alertName alertLocation alertForDate alertSeverity agencyName alertDescription")
       .skip(skip)
       .limit(limit);
