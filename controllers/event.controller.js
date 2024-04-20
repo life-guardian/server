@@ -163,6 +163,40 @@ const registerForEvent = async (req, res) => {
 };
 
 //user
+const cancelEventRegistration = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const foundEvent = await Event.findById(eventId);
+    if (!foundEvent) {
+      return res.status(400).json({ message: "Event you are trying to cancel registration for does not exist" });
+    }
+
+    // Check if the event date has passed
+    const currentDate = new Date();
+    if (foundEvent.eventDate < currentDate) {
+      return res.status(400).json({ message: "The event has already passed. You cannot cancel registration for it." });
+    }
+
+    // Check if the loggedIn user is registered for the event
+    const index = foundEvent.registrations.indexOf(req.user.id);
+    if (index === -1) {
+      return res.status(400).json({ message: "You are not registered for this event" });
+    }
+
+    // Remove the user's registration from the event
+    foundEvent.registrations.splice(index, 1);
+    await foundEvent.save();
+
+    await User.findOneAndUpdate({ _id: req.user.id }, { $pull: { registeredEvents: foundEvent._id } });
+
+    res.status(200).json({ message: "Successfully canceled registration for the event!" });
+  } catch (error) {
+    handleServerError(res, error, "Error in canceling registration for event");
+  }
+};
+
+//user
 const showRegisteredEvents = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate({
@@ -294,6 +328,7 @@ const searchEvent = async (req, res) => {
 module.exports = {
   agencyAddEvent,
   registerForEvent,
+  cancelEventRegistration,
   showRegistrations,
   showEventsList,
   cancelEvent,

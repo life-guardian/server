@@ -12,6 +12,7 @@ const {
   upcomingNearbyEvents,
   eventDetails,
   searchEvent,
+  cancelEventRegistration,
 } = require("../controllers/event.controller");
 
 //Agency specific
@@ -23,6 +24,7 @@ router.delete("/agency/cancel/:eventId", auth, isAgency, cancelEvent);
 
 //public
 router.put("/register", auth, notAgency, registerForEvent);
+router.delete("/cancel-registration/:eventId", auth, notAgency, cancelEventRegistration);
 router.get("/registeredevents", auth, notAgency, showRegisteredEvents);
 router.get("/nearbyevents/:latitude/:longitude", auth, notAgency, upcomingNearbyEvents);
 router.get("/eventdetails/:eventId", auth, notAgency, eventDetails);
