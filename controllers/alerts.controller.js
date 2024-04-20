@@ -150,7 +150,13 @@ const searchAlert = async (req, res) => {
   const searchText = req.body.searchText.trim() || "";
   const { lat, lng } = req.body;
 
-  const options = {};
+  if (!searchText && !lat && !lng) {
+    return res.status(400).json({ message: "Search query is empty!!" });
+  }
+
+  const options = {
+    alertForDate: { $gte: currentDate }, // Filtering alerts after today
+  };
 
   if (searchText) {
     options.alertName = { $regex: searchText, $options: "i" };

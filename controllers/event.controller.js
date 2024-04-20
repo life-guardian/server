@@ -242,7 +242,12 @@ const searchEvent = async (req, res) => {
   const { lng, lat } = req.body;
   const rangeInKm = 20;
   const radiusInMiles = rangeInKm / 1.60934;
-  const options = {};
+  const currentDate = new Date();
+  const options = { eventDate: { $gte: currentDate } };
+
+  if (!searchText && !lat && !lng) {
+    return res.status(400).json({ message: "Search query is empty!!" });
+  }
 
   if (searchText) {
     options.eventName = { $regex: searchText, $options: "i" };
