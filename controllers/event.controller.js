@@ -243,7 +243,12 @@ const searchEvent = async (req, res) => {
   const rangeInKm = 20;
   const radiusInMiles = rangeInKm / 1.60934;
   const currentDate = new Date();
-  const options = { eventDate: { $gte: currentDate } };
+  const options = {
+    eventDate: { $gte: currentDate },
+    location: {
+      coordinates: null,
+    },
+  };
 
   if (!searchText && !lat && !lng) {
     return res.status(400).json({ message: "Search query is empty!!" });
@@ -254,13 +259,14 @@ const searchEvent = async (req, res) => {
   }
 
   if (lng && lat) {
-    options.alertLocation = {
+    options.location.coordinates = {
       $geoWithin: {
         $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
       },
     };
   }
-
+  // console.log(lat, lng, searchText);
+  // console.log(options);
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 30;
   const skip = (page - 1) * limit;
