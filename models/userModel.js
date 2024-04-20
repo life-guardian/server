@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
     rescue: {
       isInDanger: {
         type: Boolean,
-        default: null,
+        default: false,
       },
       reason: {
         type: String,
