@@ -272,7 +272,7 @@ const eventDetails = async (req, res) => {
 };
 
 const searchEvent = async (req, res) => {
-  const searchText = req.query.searchText.trim();
+  const searchText = req.query.searchText ? req.query.searchText.trim() : "";
   const { lng, lat } = req.query;
   const rangeInKm = 20;
   const radiusInMiles = rangeInKm / 1.60934;

@@ -147,7 +147,7 @@ const searchAlert = async (req, res) => {
 
   const currentDate = new Date();
 
-  const searchText = req.query.searchText.trim() || "";
+  const searchText = req.query.searchText ? req.query.searchText.trim() : "";
   const { lat, lng } = req.query;
   if (!searchText && !lat && !lng) {
     return res.status(400).json({ message: "Search query is empty!!" });
