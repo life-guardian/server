@@ -7,7 +7,7 @@ const { rescueMe, stopUserRescue, isAlreadyRescueMeStarted } = require("../contr
 //user route
 router.get("/user/isrescuemeongoing", auth, notAgency, isAlreadyRescueMeStarted);
 
-router.put("/user/rescueme", auth, notAgency, rescueMe);
+router.post("/user/rescueme", auth, notAgency, rescueMe);
 
 router.put("/user/stoprescueme", auth, notAgency, stopUserRescue);
 
