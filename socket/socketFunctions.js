@@ -46,7 +46,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
     const nearbyUsers = await fetchNearest(User, [parseFloat(locationPayload.lng), parseFloat(locationPayload.lat)]);
 
     const users = nearbyUsers
-      .filter((user) => user.socketId && user._id.toString() !== socket.user.id.toString()) // Filter out own user's data
+      .filter((user) => user.socketId && user._id.toString() !== socket.user.id.toString() && user.rescue.isInDanger) // Filter out own user's data and include only users in danger
       .map((user) => {
         return {
           lng: user.lastLocation.coordinates[0],
