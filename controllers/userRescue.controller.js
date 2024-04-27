@@ -15,7 +15,7 @@ const rescueMe = async (req, res) => {
       await sendMail(
         "pratik8560@gmail.com",
         "USER IS IN DANGER!!!",
-        `The user ${user.name} is in DANGER. UserInfo\n Phone Number: ${user.phoneNumber}\nPermanent Address: ${user.address}\nLast Location: ${user.lastLocation}\nLast Location UpdatedAt: ${user.lastLocationUpdatedAt}\nRescue reason: ${user.rescue.reason}. There isn't any agency around him to rescue. \n\nSEND EMERGENCY RESPONSE TEAM IMMIDIATELY.\n\nUser Location\n lattitude: ${req.body.lat} longitude: ${req.body.lng}`
+        `The user ${user.name} is in DANGER. UserInfo\n Phone Number: ${user.phoneNumber}\nPermanent Address: ${user.address}\nLast Location: ${user.lastLocation}\nLast Location UpdatedAt: ${user.lastLocationUpdatedAt}\nRescue reason: ${user.rescue.reason}. There isn't any agency around him to rescue. \n\nSEND EMERGENCY RESPONSE TEAM IMMIDIATELY.`
       );
     }
     res.status(200).json({ message: "Rescue me!" });

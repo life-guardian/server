@@ -162,16 +162,14 @@ const searchAlert = async (req, res) => {
   }
 
   if (lng && lat) {
-    const locationQuery = {
+    query = {
+      ...query,
       alertLocation: {
-        coordinates: {
-          $geoWithin: {
-            $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
-          },
+        $geoWithin: {
+          $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
         },
       },
     };
-    query = { ...query, ...locationQuery };
   }
 
   const page = parseInt(req.query.page) || 1;
