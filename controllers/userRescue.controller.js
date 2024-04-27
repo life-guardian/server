@@ -11,7 +11,7 @@ const rescueMe = async (req, res) => {
       $set: { "rescue.isInDanger": true, "rescue.reason": req.body.rescueReason },
     });
     const nearbyAgencies = await fetchNearest(Agency, [parseFloat(req.body.lng), parseFloat(req.body.lat)]);
-    if (nearbyAgencies.length === 0) {
+    if (!nearbyAgencies.length) {
       await sendMail(
         "pratik8560@gmail.com",
         "USER IS IN DANGER!!!",
