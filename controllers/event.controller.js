@@ -289,7 +289,8 @@ const searchEvent = async (req, res) => {
   }
 
   if (lng && lat) {
-    const locationQuery = {
+    options = {
+      ...options,
       location: {
         coordinates: {
           $geoWithin: {
@@ -298,7 +299,6 @@ const searchEvent = async (req, res) => {
         },
       },
     };
-    options = { ...options, ...locationQuery };
   }
 
   const page = parseInt(req.query.page) || 1;
