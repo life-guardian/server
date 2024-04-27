@@ -270,18 +270,14 @@ const eventDetails = async (req, res) => {
     handleServerError(res, error, "Error in fetching event details");
   }
 };
-
 const searchEvent = async (req, res) => {
   const searchText = req.query.searchText ? req.query.searchText.trim() : "";
   const { lng, lat } = req.query;
   const rangeInKm = 20;
   const radiusInMiles = rangeInKm / 1.60934;
   const currentDate = new Date();
-  const options = {
+  let options = {
     eventDate: { $gte: currentDate },
-    location: {
-      coordinates: null,
-    },
   };
 
   if (!searchText && !lat && !lng) {
@@ -293,14 +289,18 @@ const searchEvent = async (req, res) => {
   }
 
   if (lng && lat) {
-    options.location.coordinates = {
-      $geoWithin: {
-        $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
+    const locationQuery = {
+      location: {
+        coordinates: {
+          $geoWithin: {
+            $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
+          },
+        },
       },
     };
+    options = { ...options, ...locationQuery };
   }
-  // console.log(lat, lng, searchText);
-  // console.log(options);
+
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 30;
   const skip = (page - 1) * limit;
@@ -320,8 +320,8 @@ const searchEvent = async (req, res) => {
 
     res.status(200).json({ totalPages, currentPage: page, events });
   } catch (error) {
-    console.error(`Error finding agency: ${error}`);
-    return res.status(500).json({ message: "Error finding agency" });
+    console.error(`Error searching events: ${error}`);
+    return res.status(500).json({ message: "Error searching events" });
   }
 };
 

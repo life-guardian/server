@@ -153,9 +153,8 @@ const searchAlert = async (req, res) => {
     return res.status(400).json({ message: "Search query is empty!!" });
   }
 
-  const query = {
+  let query = {
     alertForDate: { $gte: currentDate }, // Filtering alerts after today
-    "alertLocation.coordinates": null,
   };
 
   if (searchText) {
@@ -163,11 +162,16 @@ const searchAlert = async (req, res) => {
   }
 
   if (lng && lat) {
-    query["alertLocation.coordinates"] = {
-      $geoWithin: {
-        $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
+    const locationQuery = {
+      alertLocation: {
+        coordinates: {
+          $geoWithin: {
+            $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
+          },
+        },
       },
     };
+    query = { ...query, ...locationQuery };
   }
 
   const page = parseInt(req.query.page) || 1;
