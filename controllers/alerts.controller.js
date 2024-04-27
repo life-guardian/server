@@ -153,19 +153,17 @@ const searchAlert = async (req, res) => {
     return res.status(400).json({ message: "Search query is empty!!" });
   }
 
-  const options = {
+  const query = {
     alertForDate: { $gte: currentDate }, // Filtering alerts after today
-    alertLocation: {
-      coordinates: null,
-    },
+    "alertLocation.coordinates": null,
   };
 
   if (searchText) {
-    options.alertName = { $regex: searchText, $options: "i" };
+    query.alertName = { $regex: searchText, $options: "i" };
   }
 
   if (lng && lat) {
-    options.alertLocation.coordinates = {
+    query["alertLocation.coordinates"] = {
       $geoWithin: {
         $centerSphere: [[parseFloat(lng), parseFloat(lat)], radiusInMiles / 3963.2],
       },
@@ -177,10 +175,10 @@ const searchAlert = async (req, res) => {
   const skip = (page - 1) * limit;
 
   try {
-    const count = await Alert.countDocuments(options);
+    const count = await Alert.countDocuments(query);
     const totalPages = Math.ceil(count / limit);
 
-    const result = await Alert.find(options).skip(skip).limit(limit);
+    const result = await Alert.find(query).skip(skip).limit(limit).populate("agencyId", "name");
 
     const alerts = result.map((alert) => ({
       alertId: alert._id,
@@ -194,8 +192,8 @@ const searchAlert = async (req, res) => {
 
     res.status(200).json({ totalPages, currentPage: page, alerts });
   } catch (error) {
-    console.error(`Error finding agency: ${error}`);
-    return res.status(500).json({ message: "Error finding agency" });
+    console.error(`Error searching alerts: ${error}`);
+    return res.status(500).json({ message: "Error searching alerts" });
   }
 };
 
