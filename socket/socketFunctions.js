@@ -121,7 +121,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
       rescueReason: user.rescue.reason,
     };
 
-    if (agencySocketIds.length > 0) {
+    if (agencySocketIds.length > 0 && user.rescue.isInDanger) {
       socket.broadcast.to(agencySocketIds).emit("userLocationUpdate", currentUserData);
     }
     console.log(`\nInitially connected user ${socket.id} and the data is \n${JSON.stringify(agencies)}\n`);
