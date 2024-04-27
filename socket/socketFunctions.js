@@ -47,7 +47,10 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
 
     const users = nearbyUsers
       .filter(
-        (user) => user.socketId && user._id.toString() !== socket.user.id.toString() && user.rescue.isInDanger === true
+        (user) =>
+          user.socketId && // Check if user has a socket ID
+          user._id.toString() !== socket.user.id.toString() && // Filter out the current agency's own data
+          user.rescue.isInDanger === true // Check if user is in danger
       )
       .map((user) => {
         return {
@@ -60,6 +63,7 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
           rescueReason: user.rescue.reason,
         };
       });
+
     socket.emit("initialConnectReceiveNearbyUsers", users);
 
     const agencyLocation = {
@@ -130,7 +134,6 @@ const handleOnInitialConnect = async (socket, locationPayload) => {
   }
 };
 
-// Throttle the userLocationUpdate event
 const handleUserLocationUpdate = _.throttle(async (socket, locationPayload) => {
   if (socket.user.isAgency) {
     socket.emit("userLocationUpdate", {
