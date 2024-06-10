@@ -57,7 +57,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  res.status(200).json({ message: "status is OK😊!" });
+  res.status(200).json({ message: "status is HEALTHY!" });
 });
 
 app.get("/*", (req, res) => {
